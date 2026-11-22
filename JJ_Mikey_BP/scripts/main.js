@@ -312,11 +312,34 @@ function punch(buddy, player) {
   speak(buddy, "punch_none", player);
 }
 
-// ---------- tap to open the menu ----------
+// ---------- quick controls (backups in case the menu won't open) ----------
+function quickToggle(buddy, player) {
+  const following = !buddy.hasTag("jjmikey_sit") && !buddy.hasTag("jjmikey_stay");
+  setMode(buddy, player, following ? "sit" : "follow");
+}
+
+// /scriptevent buddy:follow | buddy:stay | buddy:sit   (affects every JJ/Mikey within 48 blocks of you)
+system.afterEvents.scriptEventReceive.subscribe((ev) => {
+  if (!ev.id.startsWith("buddy:")) return;
+  const cmd = ev.id.slice(6);
+  const mode = cmd === "sit" ? "sit" : cmd === "stay" ? "stay" : cmd === "follow" || cmd === "wander" ? "follow" : null;
+  const player = ev.sourceEntity;
+  if (!mode || !player || !player.dimension) return;
+  let n = 0;
+  for (const type of Object.keys(TYPES)) {
+    try {
+      for (const b of player.dimension.getEntities({ type, location: player.location, maxDistance: 48 })) { setMode(b, player, mode); n++; }
+    } catch { }
+  }
+  if (n === 0) try { player.sendMessage("§7No JJ or Mikey within 48 blocks."); } catch { }
+});
+
+// ---------- tap to open the menu (sneak + tap = quick toggle follow <-> sit) ----------
 world.afterEvents.playerInteractWithEntity.subscribe((ev) => {
   const buddy = ev.target;
   if (!(buddy.typeId in TYPES)) return;
   const held = ev.itemStack?.typeId;
   if (!buddy.hasTag("jjmikey_tamed") && (held === "minecraft:cookie" || held === "minecraft:golden_apple")) return; // let taming happen
+  if (ev.player.isSneaking) { system.run(() => quickToggle(buddy, ev.player)); return; }
   system.run(() => showMenu(ev.player, buddy));
 });

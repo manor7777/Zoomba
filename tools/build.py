@@ -8,6 +8,7 @@ BP, RP = f"{ROOT}/JJ_Mikey_BP", f"{ROOT}/JJ_Mikey_RP"
 BP_U, BP_M, RP_U, RP_M, BP_S = ("6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e01", "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e02",
                                 "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e03", "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e04",
                                 "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e05")
+V = [int(x) for x in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "VERSION")).read().strip().split(".")]
 EGG = {"jj": ("#aa0000", "#5c342b"), "mikey": ("#45a22c", "#1d5412")}   # taken from the skins
 
 def w(path, data):
@@ -16,15 +17,15 @@ def w(path, data):
         f.write(data) if isinstance(data, str) else json.dump(data, f, indent=2)
 
 w(f"{BP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Behavior)", "description": "Interactive JJ and Mikey buddies", "uuid": BP_U, "version": [1, 1, 0], "min_engine_version": [1, 21, 100]},
-  "modules": [{"type": "data", "uuid": BP_M, "version": [1, 1, 0]},
-              {"type": "script", "language": "javascript", "uuid": BP_S, "version": [1, 1, 0], "entry": "scripts/main.js"}],
-  "dependencies": [{"uuid": RP_U, "version": [1, 1, 0]},
+  "header": {"name": "JJ & Mikey Friends (Behavior)", "description": "Interactive JJ and Mikey buddies", "uuid": BP_U, "version": V, "min_engine_version": [1, 21, 100]},
+  "modules": [{"type": "data", "uuid": BP_M, "version": V},
+              {"type": "script", "language": "javascript", "uuid": BP_S, "version": V, "entry": "scripts/main.js"}],
+  "dependencies": [{"uuid": RP_U, "version": V},
                    {"module_name": "@minecraft/server", "version": "2.0.0"},
                    {"module_name": "@minecraft/server-ui", "version": "2.0.0"}]})
 w(f"{RP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Skins)", "description": "Skins and voices for JJ and Mikey", "uuid": RP_U, "version": [1, 1, 0], "min_engine_version": [1, 21, 100]},
-  "modules": [{"type": "resources", "uuid": RP_M, "version": [1, 1, 0]}]})
+  "header": {"name": "JJ & Mikey Friends (Skins)", "description": "Skins and voices for JJ and Mikey", "uuid": RP_U, "version": V, "min_engine_version": [1, 21, 100]},
+  "modules": [{"type": "resources", "uuid": RP_M, "version": V}]})
 
 # dialogue data for the script
 data = {k: {"name": c["name"], "color": c["color"], "gifts": c["gifts"],
