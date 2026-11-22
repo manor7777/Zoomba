@@ -1,0 +1,38 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "jjmikey:jj",
+      "materials": {
+        "default": "entity_alphatest"
+      },
+      "textures": {
+        "default": "textures/entity/jj"
+      },
+      "geometry": {
+        "default": "geometry.humanoid.custom"
+      },
+      "animations": {
+        "move": "animation.humanoid.move",
+        "base_pose": "animation.humanoid.base_pose",
+        "look_at_target": "animation.humanoid.look_at_target.default"
+      },
+      "scripts": {
+        "animate": [
+          "base_pose",
+          {
+            "move": "query.is_moving"
+          },
+          "look_at_target"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.default"
+      ],
+      "spawn_egg": {
+        "base_color": "#2fbf3a",
+        "overlay_color": "#2c3e6b"
+      }
+    }
+  }
+}
