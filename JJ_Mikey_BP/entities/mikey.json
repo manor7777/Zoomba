@@ -5,7 +5,14 @@
       "identifier": "jjmikey:mikey",
       "is_spawnable": true,
       "is_summonable": true,
-      "is_experimental": false
+      "is_experimental": false,
+      "properties": {
+        "jjmikey:sit": {
+          "type": "bool",
+          "default": false,
+          "client_sync": true
+        }
+      }
     },
     "component_groups": {
       "tamed": {
@@ -153,11 +160,24 @@
           ]
         }
       },
+      "jjmikey:sit": {
+        "add": {
+          "component_groups": [
+            "stay"
+          ]
+        },
+        "set_property": {
+          "jjmikey:sit": true
+        }
+      },
       "jjmikey:go": {
         "remove": {
           "component_groups": [
             "stay"
           ]
+        },
+        "set_property": {
+          "jjmikey:sit": false
         }
       }
     }

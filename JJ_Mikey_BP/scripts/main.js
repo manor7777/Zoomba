@@ -125,7 +125,7 @@ async function showMenu(player, buddy, tries = 0) {
   if (!alive(buddy)) return;
   const c = LINES[TYPES[buddy.typeId]];
   const tamed = buddy.hasTag("jjmikey_tamed");
-  const staying = buddy.hasTag("jjmikey_stay");
+  const mode = buddy.hasTag("jjmikey_sit") ? "sit" : buddy.hasTag("jjmikey_stay") ? "stay" : "follow";
   const muted = player.hasTag("jjmikey_mute");
   const buttons = [];
   const form = new ActionFormData().title(`${c.color}${c.name}`);
@@ -133,10 +133,15 @@ async function showMenu(player, buddy, tries = 0) {
   const add = (label, fn) => { form.button(label); buttons.push(fn); };
   add("Chat", () => speak(buddy, "talk", player));
   add("Ask for a gift", () => gift(buddy, player));
-  if (tamed) {
-    add(staying ? "Follow me" : "Stay here", () => toggleStay(buddy, player));
-    add("Punch what I'm looking at", () => punch(buddy, player));
+  if (mode === "follow") {
+    add("Stay here (standing)", () => setMode(buddy, player, "stay"));
+    add("Sit down", () => setMode(buddy, player, "sit"));
+  } else {
+    add(tamed ? "Follow me" : "Wander again", () => setMode(buddy, player, "follow"));
+    if (mode === "stay") add("Sit down", () => setMode(buddy, player, "sit"));
+    else add("Stand up (stay here)", () => setMode(buddy, player, "stay"));
   }
+  if (tamed) add("Punch what I'm looking at", () => punch(buddy, player));
   add(muted ? "Voices: OFF (tap to turn on)" : "Voices: ON (tap to turn off)", () => {
     if (muted) player.removeTag("jjmikey_mute"); else player.addTag("jjmikey_mute");
     player.sendMessage(muted ? "§7Buddy voices on." : "§7Buddy voices off.");
@@ -172,17 +177,102 @@ function gift(buddy, player) {
   speak(buddy, "gift", player);
 }
 
-function toggleStay(buddy, player) {
-  if (buddy.hasTag("jjmikey_stay")) {
-    buddy.removeTag("jjmikey_stay");
-    buddy.triggerEvent("jjmikey:go");
-    speak(buddy, "go", player);
-  } else {
+function setMode(buddy, player, mode) {
+  buddy.removeTag("jjmikey_stay");
+  buddy.removeTag("jjmikey_sit");
+  try { buddy.triggerEvent("jjmikey:go"); } catch { }
+  if (mode === "stay") {
     buddy.addTag("jjmikey_stay");
-    buddy.triggerEvent("jjmikey:stay");
+    try { buddy.triggerEvent("jjmikey:stay"); } catch { }
     speak(buddy, "stay", player);
+  } else if (mode === "sit") {
+    buddy.addTag("jjmikey_sit");
+    try { buddy.triggerEvent("jjmikey:sit"); } catch { }
+    speak(buddy, "sit", player);
+  } else {
+    speak(buddy, "go", player);
   }
 }
+
+// ---------- names (fixes "Unknown was slain") ----------
+function ensureName(e) {
+  try {
+    if (e.typeId in TYPES && !e.nameTag) e.nameTag = LINES[TYPES[e.typeId]].name;
+  } catch { }
+}
+world.afterEvents.entitySpawn.subscribe((ev) => ensureName(ev.entity));
+
+// ---------- noticing things (diamonds, chests, flowers, ...) ----------
+const FLOWERS = ["dandelion", "poppy", "blue_orchid", "allium", "azure_bluet", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip",
+  "oxeye_daisy", "cornflower", "lily_of_the_valley", "sunflower", "lilac", "rose_bush", "peony", "wither_rose", "torchflower", "pink_petals"];
+const ORES = ["gold_ore", "deepslate_gold_ore", "emerald_ore", "deepslate_emerald_ore", "ancient_debris", "lapis_ore", "deepslate_lapis_ore"];
+const PRIORITY = ["diamond", "spawner", "ore", "creeper", "chest", "villager", "flower"];
+
+function classify(id) {
+  id = id.replace("minecraft:", "");
+  if (id.includes("diamond_ore")) return "diamond";
+  if (id === "mob_spawner" || id === "spawner") return "spawner";
+  if (ORES.includes(id)) return "ore";
+  if (id === "chest" || id === "trapped_chest" || id === "ender_chest") return "chest";
+  if (FLOWERS.includes(id)) return "flower";
+  return null;
+}
+
+function exposed(dim, b) {
+  const { x, y, z } = b.location;
+  for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]) {
+    try {
+      const n = dim.getBlock({ x: x + dx, y: y + dy, z: z + dz });
+      if (n && (n.isAir || n.isLiquid)) return true;
+    } catch { }
+  }
+  return false;
+}
+
+function notice(e, player) {
+  const s = st(e);
+  const now = system.currentTick;
+  if (now - (s.lastNotice ?? -99999) < 20 * 15) return;
+  s.seen = s.seen || {};
+  const dim = e.dimension;
+  const found = new Set();
+  const { x, y, z } = e.location;
+  const bx = Math.floor(x), by = Math.floor(y), bz = Math.floor(z), r = 7;
+  for (let dx = -r; dx <= r; dx++) for (let dy = -3; dy <= 4; dy++) for (let dz = -r; dz <= r; dz++) {
+    let b;
+    try { b = dim.getBlock({ x: bx + dx, y: by + dy, z: bz + dz }); } catch { continue; }
+    if (!b) continue;
+    const k = classify(b.typeId);
+    if (k && !found.has(k) && exposed(dim, b)) found.add(k);
+  }
+  try { if (dim.getEntities({ location: e.location, maxDistance: 12, type: "minecraft:creeper" }).length > 0) found.add("creeper"); } catch { }
+  try { if (dim.getEntities({ location: e.location, maxDistance: 12, type: "minecraft:villager_v2" }).length > 0) found.add("villager"); } catch { }
+  for (const k of PRIORITY) {
+    if (!found.has(k)) continue;
+    if (now - (s.seen[k] ?? -99999) < 20 * 120) continue;
+    s.seen[k] = now;
+    s.lastNotice = now;
+    speak(e, "notice_" + k, player);
+    return;
+  }
+}
+
+system.runInterval(() => {
+  for (const dimId of ["overworld", "nether", "the_end"]) {
+    let dim;
+    try { dim = world.getDimension(dimId); } catch { continue; }
+    for (const type of Object.keys(TYPES)) {
+      let list = [];
+      try { list = dim.getEntities({ type }); } catch { continue; }
+      for (const e of list) {
+        ensureName(e);
+        let near = [];
+        try { near = dim.getPlayers({ location: e.location, maxDistance: 14 }); } catch { }
+        if (near.length > 0) notice(e, near[0]);
+      }
+    }
+  }
+}, 60);
 
 // ---------- punching ----------
 function nearTo(loc, from) {

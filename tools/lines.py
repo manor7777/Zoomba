@@ -38,6 +38,15 @@ LINES = {
  "punch": [("punch1", "Hiyah!", []), ("punch2", "Take that!", []), ("punch3", "Smash!", [])],
  "punch_block": [("pblock", "Bam! Gone!", [])],
  "punch_none": [("pnone", "There's nothing to punch over there.", [])],
+
+ "sit": [("sit", "Ahh, a nice sit-down.", [])],
+ "notice_diamond": [("n_dia1", "Wait... is that a diamond?! Over there!", []), ("n_dia2", "Diamonds! I see diamonds!", [])],
+ "notice_spawner": [("n_spa1", "Uh oh, that looks like a monster spawner. Careful!", []), ("n_spa2", "A spawner! Let's not poke it. Or... maybe we should.", [])],
+ "notice_ore": [("n_ore1", "Ooh, shiny ore over there!", []), ("n_ore2", "Do I see gold? I think I see gold!", [])],
+ "notice_creeper": [("n_cre1", "Creeper! Back away slowly!", []), ("n_cre2", "Is that a creeper?! Run!", [])],
+ "notice_chest": [("n_che1", "Hey, a chest! Let's check it out!", []), ("n_che2", "Treasure chest, right over there!", [])],
+ "notice_villager": [("n_vil1", "Hey, a villager! Hmm hmm hmm.", []), ("n_vil2", "Look, a villager. Maybe they want to trade.", [])],
+ "notice_flower": [("n_flo1", "Nice flowers! Mikey would eat those.", []), ("n_flo2", "Look at those pretty flowers!", [])],
 },
 "mikey": {
  "name": "Mikey", "color": "§a", "voice": {"base": 215, "speed": 0.95},
@@ -77,6 +86,16 @@ LINES = {
  "punch": [("punch1", "Hey! Back off!", []), ("punch2", "Boom!", []), ("punch3", "Not today!", [])],
  "punch_block": [("pblock", "Done! That was easy.", [])],
  "punch_none": [("pnone", "I don't see anything to punch.", [])],
+
+ "sit": [("sit", "Finally, a break!", [])],
+ "notice_diamond": [("n_dia1", "Shiny! Shiny blue thing! Is that a diamond?", []), ("n_dia2", "JJ would love this. Diamonds over there!", [])],
+ "notice_spawner": [("n_spa1", "That's a spawner. I really don't like spawners.", []), ("n_spa2", "Spawner! Nope nope nope.", [])],
+ "notice_ore": [("n_ore1", "I see shiny stuff in the wall!", []), ("n_ore2", "Is that gold? Can we get the gold?", [])],
+ "notice_creeper": [("n_cre1", "Creeper! Creeper! Everybody run!", []), ("n_cre2", "Please tell me that's not a creeper.", [])],
+ "notice_chest": [("n_che1", "A chest! Do you think it has snacks?", []), ("n_che2", "Ooh, a chest. Let's peek inside.", [])],
+ "notice_villager": [("n_vil1", "A villager! Do they have any food?", []), ("n_vil2", "Hey, a villager. Hello! ...Hmm.", [])],
+ "notice_flower": [("n_flo1", "Flowers! Those smell nice.", []), ("n_flo2", "Pretty flowers. I'm gonna pick one for JJ.", [])],
 },
 }
-CATS = ["talk", "gift", "nogift", "tamed", "stay", "go", "punch", "punch_block", "punch_none"]
+CATS = ["talk", "gift", "nogift", "tamed", "stay", "sit", "go", "punch", "punch_block", "punch_none",
+        "notice_diamond", "notice_spawner", "notice_ore", "notice_creeper", "notice_chest", "notice_villager", "notice_flower"]

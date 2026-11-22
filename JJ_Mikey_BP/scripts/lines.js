@@ -239,6 +239,13 @@ export const LINES = {
     "when": []
    }
   ],
+  "sit": [
+   {
+    "id": "sit",
+    "text": "Ahh, a nice sit-down.",
+    "when": []
+   }
+  ],
   "go": [
    {
     "id": "go",
@@ -274,6 +281,90 @@ export const LINES = {
    {
     "id": "pnone",
     "text": "There's nothing to punch over there.",
+    "when": []
+   }
+  ],
+  "notice_diamond": [
+   {
+    "id": "n_dia1",
+    "text": "Wait... is that a diamond?! Over there!",
+    "when": []
+   },
+   {
+    "id": "n_dia2",
+    "text": "Diamonds! I see diamonds!",
+    "when": []
+   }
+  ],
+  "notice_spawner": [
+   {
+    "id": "n_spa1",
+    "text": "Uh oh, that looks like a monster spawner. Careful!",
+    "when": []
+   },
+   {
+    "id": "n_spa2",
+    "text": "A spawner! Let's not poke it. Or... maybe we should.",
+    "when": []
+   }
+  ],
+  "notice_ore": [
+   {
+    "id": "n_ore1",
+    "text": "Ooh, shiny ore over there!",
+    "when": []
+   },
+   {
+    "id": "n_ore2",
+    "text": "Do I see gold? I think I see gold!",
+    "when": []
+   }
+  ],
+  "notice_creeper": [
+   {
+    "id": "n_cre1",
+    "text": "Creeper! Back away slowly!",
+    "when": []
+   },
+   {
+    "id": "n_cre2",
+    "text": "Is that a creeper?! Run!",
+    "when": []
+   }
+  ],
+  "notice_chest": [
+   {
+    "id": "n_che1",
+    "text": "Hey, a chest! Let's check it out!",
+    "when": []
+   },
+   {
+    "id": "n_che2",
+    "text": "Treasure chest, right over there!",
+    "when": []
+   }
+  ],
+  "notice_villager": [
+   {
+    "id": "n_vil1",
+    "text": "Hey, a villager! Hmm hmm hmm.",
+    "when": []
+   },
+   {
+    "id": "n_vil2",
+    "text": "Look, a villager. Maybe they want to trade.",
+    "when": []
+   }
+  ],
+  "notice_flower": [
+   {
+    "id": "n_flo1",
+    "text": "Nice flowers! Mikey would eat those.",
+    "when": []
+   },
+   {
+    "id": "n_flo2",
+    "text": "Look at those pretty flowers!",
     "when": []
    }
   ]
@@ -518,6 +609,13 @@ export const LINES = {
     "when": []
    }
   ],
+  "sit": [
+   {
+    "id": "sit",
+    "text": "Finally, a break!",
+    "when": []
+   }
+  ],
   "go": [
    {
     "id": "go",
@@ -553,6 +651,90 @@ export const LINES = {
    {
     "id": "pnone",
     "text": "I don't see anything to punch.",
+    "when": []
+   }
+  ],
+  "notice_diamond": [
+   {
+    "id": "n_dia1",
+    "text": "Shiny! Shiny blue thing! Is that a diamond?",
+    "when": []
+   },
+   {
+    "id": "n_dia2",
+    "text": "JJ would love this. Diamonds over there!",
+    "when": []
+   }
+  ],
+  "notice_spawner": [
+   {
+    "id": "n_spa1",
+    "text": "That's a spawner. I really don't like spawners.",
+    "when": []
+   },
+   {
+    "id": "n_spa2",
+    "text": "Spawner! Nope nope nope.",
+    "when": []
+   }
+  ],
+  "notice_ore": [
+   {
+    "id": "n_ore1",
+    "text": "I see shiny stuff in the wall!",
+    "when": []
+   },
+   {
+    "id": "n_ore2",
+    "text": "Is that gold? Can we get the gold?",
+    "when": []
+   }
+  ],
+  "notice_creeper": [
+   {
+    "id": "n_cre1",
+    "text": "Creeper! Creeper! Everybody run!",
+    "when": []
+   },
+   {
+    "id": "n_cre2",
+    "text": "Please tell me that's not a creeper.",
+    "when": []
+   }
+  ],
+  "notice_chest": [
+   {
+    "id": "n_che1",
+    "text": "A chest! Do you think it has snacks?",
+    "when": []
+   },
+   {
+    "id": "n_che2",
+    "text": "Ooh, a chest. Let's peek inside.",
+    "when": []
+   }
+  ],
+  "notice_villager": [
+   {
+    "id": "n_vil1",
+    "text": "A villager! Do they have any food?",
+    "when": []
+   },
+   {
+    "id": "n_vil2",
+    "text": "Hey, a villager. Hello! ...Hmm.",
+    "when": []
+   }
+  ],
+  "notice_flower": [
+   {
+    "id": "n_flo1",
+    "text": "Flowers! Those smell nice.",
+    "when": []
+   },
+   {
+    "id": "n_flo2",
+    "text": "Pretty flowers. I'm gonna pick one for JJ.",
     "when": []
    }
   ]

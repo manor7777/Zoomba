@@ -34,7 +34,8 @@ w(f"{BP}/scripts/lines.js", "export const LINES = " + json.dumps(data, indent=1,
 for key, c in LINES.items():
     n = c["name"]
     bp = {"format_version": "1.21.0", "minecraft:entity": {
-      "description": {"identifier": f"jjmikey:{key}", "is_spawnable": True, "is_summonable": True, "is_experimental": False},
+      "description": {"identifier": f"jjmikey:{key}", "is_spawnable": True, "is_summonable": True, "is_experimental": False,
+                       "properties": {"jjmikey:sit": {"type": "bool", "default": False, "client_sync": True}}},
       "component_groups": {
         "tamed": {
           "minecraft:is_tamed": {},
@@ -79,7 +80,8 @@ for key, c in LINES.items():
                                 'tellraw @a[r=10] {"rawtext":[{"text":"%s%s§r: %s"}]}' % (c["color"], n, c["tamed"][0][1]),
                                 "playsound jjmikey.%s.%s @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1" % (key, c["tamed"][0][0])]}},
         "jjmikey:stay": {"add": {"component_groups": ["stay"]}},
-        "jjmikey:go": {"remove": {"component_groups": ["stay"]}}
+        "jjmikey:sit": {"add": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": True}},
+        "jjmikey:go": {"remove": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": False}}
       }}}
     w(f"{BP}/entities/{key}.json", bp)
     w(f"{BP}/spawn_rules/{key}.json", {"format_version": "1.8.0", "minecraft:spawn_rules": {
@@ -96,12 +98,46 @@ for key, c in LINES.items():
         "identifier": f"jjmikey:{key}",
         "materials": {"default": "entity_alphatest"},
         "textures": {"default": f"textures/entity/{key}"},
-        "geometry": {"default": "geometry.humanoid.custom"},
+        "geometry": {"default": "geometry.jjmikey.humanoid"},
         "animations": {"move": "animation.humanoid.move", "base_pose": "animation.humanoid.base_pose",
-                       "look_at_target": "animation.humanoid.look_at_target.default"},
-        "scripts": {"animate": ["base_pose", {"move": "query.is_moving"}, "look_at_target"]},
+                       "look_at_target": "animation.humanoid.look_at_target.default",
+                       "sit": "animation.jjmikey.sit"},
+        "scripts": {"animate": ["base_pose", {"move": "query.is_moving && !query.property('jjmikey:sit')"}, "look_at_target",
+                                {"sit": "query.property('jjmikey:sit')"}]},
         "render_controllers": ["controller.render.default"],
         "spawn_egg": {"base_color": EGG[key][0], "overlay_color": EGG[key][1]}}}})
+
+def cube(ox, oy, oz, sx, sy, sz, u, v, infl=0.0):
+    c = {"origin": [ox, oy, oz], "size": [sx, sy, sz], "uv": [u, v]}
+    if infl: c["inflate"] = infl
+    return c
+def bone(name, parent, pivot, cubes=None):
+    b = {"name": name, "pivot": pivot}
+    if parent: b["parent"] = parent
+    if cubes: b["cubes"] = cubes
+    return b
+w(f"{RP}/models/entity/jjmikey.geo.json", {"format_version": "1.12.0", "minecraft:geometry": [{
+    "description": {"identifier": "geometry.jjmikey.humanoid", "texture_width": 64, "texture_height": 64,
+                    "visible_bounds_width": 2, "visible_bounds_height": 3, "visible_bounds_offset": [0, 1.5, 0]},
+    "bones": [
+        bone("root", None, [0, 0, 0]),
+        bone("body", "root", [0, 24, 0], [cube(-4, 12, -2, 8, 12, 4, 16, 16)]),
+        bone("jacket", "body", [0, 24, 0], [cube(-4, 12, -2, 8, 12, 4, 16, 32, 0.25)]),
+        bone("head", "root", [0, 24, 0], [cube(-4, 24, -4, 8, 8, 8, 0, 0)]),
+        bone("hat", "head", [0, 24, 0], [cube(-4, 24, -4, 8, 8, 8, 32, 0, 0.5)]),
+        bone("rightArm", "root", [-5, 22, 0], [cube(-8, 12, -2, 4, 12, 4, 40, 16)]),
+        bone("rightSleeve", "rightArm", [-5, 22, 0], [cube(-8, 12, -2, 4, 12, 4, 40, 32, 0.25)]),
+        bone("leftArm", "root", [5, 22, 0], [cube(4, 12, -2, 4, 12, 4, 32, 48)]),
+        bone("leftSleeve", "leftArm", [5, 22, 0], [cube(4, 12, -2, 4, 12, 4, 48, 48, 0.25)]),
+        bone("rightLeg", "root", [-1.9, 12, 0], [cube(-3.9, 0, -2, 4, 12, 4, 0, 16)]),
+        bone("rightPants", "rightLeg", [-1.9, 12, 0], [cube(-3.9, 0, -2, 4, 12, 4, 0, 32, 0.25)]),
+        bone("leftLeg", "root", [1.9, 12, 0], [cube(-0.1, 0, -2, 4, 12, 4, 16, 48)]),
+        bone("leftPants", "leftLeg", [1.9, 12, 0], [cube(-0.1, 0, -2, 4, 12, 4, 0, 48, 0.25)])]}]})
+w(f"{RP}/animations/jjmikey.animation.json", {"format_version": "1.8.0", "animations": {
+    "animation.jjmikey.sit": {"loop": True, "bones": {
+        "root": {"position": [0, -10, 0]},
+        "rightLeg": {"rotation": [-90, 10, 0]}, "leftLeg": {"rotation": [-90, -10, 0]},
+        "rightArm": {"rotation": [-25, 0, 8]}, "leftArm": {"rotation": [-25, 0, -8]}}}}})
 
 # one sound per dialogue line
 sd = {}
