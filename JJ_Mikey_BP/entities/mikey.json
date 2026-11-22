@@ -12,7 +12,7 @@
         "minecraft:is_tamed": {},
         "minecraft:behavior.follow_owner": {
           "priority": 4,
-          "speed": 1.2,
+          "speed_multiplier": 1.2,
           "start_distance": 8,
           "stop_distance": 3
         },
@@ -22,10 +22,41 @@
         "minecraft:behavior.owner_hurt_target": {
           "priority": 2
         },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 3,
+          "must_see": false,
+          "reselect_targets": true,
+          "attack_interval": 10,
+          "entity_types": [
+            {
+              "max_dist": 14,
+              "filters": {
+                "all_of": [
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "value": "monster"
+                  },
+                  {
+                    "test": "is_family",
+                    "subject": "other",
+                    "operator": "!=",
+                    "value": "creeper"
+                  }
+                ]
+              }
+            }
+          ]
+        },
         "minecraft:behavior.melee_attack": {
           "priority": 3,
           "speed_multiplier": 1.2,
           "track_target": true
+        }
+      },
+      "stay": {
+        "minecraft:movement": {
+          "value": 0.0
         }
       }
     },
@@ -66,18 +97,6 @@
         "is_pushable_by_piston": true
       },
       "minecraft:nameable": {},
-      "minecraft:timer": {
-        "looping": true,
-        "randomInterval": true,
-        "time": [
-          45,
-          120
-        ],
-        "time_down_event": {
-          "event": "mikey:idle",
-          "target": "self"
-        }
-      },
       "minecraft:persistent": {},
       "minecraft:fall_damage": {
         "value": 1.0
@@ -92,42 +111,6 @@
           "event": "jjmikey:on_tame",
           "target": "self"
         }
-      },
-      "minecraft:interact": {
-        "interactions": [
-          {
-            "on_interact": {
-              "filters": {
-                "all_of": [
-                  {
-                    "test": "is_family",
-                    "subject": "other",
-                    "value": "player"
-                  },
-                  {
-                    "test": "has_equipment",
-                    "subject": "other",
-                    "domain": "hand",
-                    "operator": "not",
-                    "value": "cookie"
-                  }
-                ]
-              },
-              "event": "mikey:talk",
-              "target": "self"
-            },
-            "swing": true,
-            "cooldown": 8,
-            "play_sounds": "random.levelup",
-            "particle_on_start": {
-              "particle_type": "heart",
-              "particle_offset_towards_interactor": true
-            },
-            "spawn_items": {
-              "table": "loot_tables/mikey_gift.json"
-            }
-          }
-        ]
       },
       "minecraft:behavior.float": {
         "priority": 0
@@ -149,104 +132,6 @@
       }
     },
     "events": {
-      "mikey:talk": {
-        "randomize": [
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: JJ, don't leave me!\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I made a snack, want some?\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Look at this cool thing I found!\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I'm not scared... okay, maybe a little.\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Wanna play hide and seek?\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Here, take this gold!\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          }
-        ]
-      },
-      "mikey:idle": {
-        "randomize": [
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Is it snack time yet?\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: JJ? JJ, are you there?\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I think I heard something...\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          },
-          {
-            "weight": 1,
-            "queue_command": {
-              "command": [
-                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: La la la la.\"}]}",
-                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
-              ]
-            }
-          }
-        ]
-      },
       "jjmikey:on_tame": {
         "add": {
           "component_groups": [
@@ -255,8 +140,23 @@
         },
         "queue_command": {
           "command": [
-            "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Okay okay, I'm following you! Don't go too far!\"}]}",
-            "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
+            "tag @s add jjmikey_tamed",
+            "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7aMikey\u00a7r: Okay, I'm sticking with you. Don't go too far!\"}]}",
+            "playsound jjmikey.mikey.tamed @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1"
+          ]
+        }
+      },
+      "jjmikey:stay": {
+        "add": {
+          "component_groups": [
+            "stay"
+          ]
+        }
+      },
+      "jjmikey:go": {
+        "remove": {
+          "component_groups": [
+            "stay"
           ]
         }
       }

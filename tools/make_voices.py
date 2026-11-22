@@ -1,49 +1,59 @@
-"""Synthesizes original 'villager-style' babble voices (formant synthesis) for JJ and Mikey.
-JJ = brighter/higher, Mikey = lower/softer. Not recordings of anyone."""
-import numpy as np, wave, subprocess, os, sys, random
+"""Generates one short 'animalese'-style voice clip per dialogue line (soft sine blips, one per syllable).
+Original synthesized sounds - not recordings of anyone. Replace the .ogg files with real recordings any time."""
+import numpy as np, wave, subprocess, os, sys, re, random
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from lines import LINES, CATS
 
 SR = 22050
-VOWELS = {"a": (800, 1200), "e": (500, 1800), "i": (300, 2300), "o": (500, 900), "u": (350, 700), "ae": (650, 1650)}
+VOW = {"a": 0, "e": 2, "i": 5, "o": -3, "u": -5, "y": 3}
 
-def resonator(x, f, bw):
-    r = np.exp(-np.pi * bw / SR); th = 2 * np.pi * f / SR
-    a1, a2 = -2 * r * np.cos(th), r * r
-    y = np.zeros_like(x)
-    for n in range(len(x)):
-        y[n] = x[n] - a1 * (y[n-1] if n > 0 else 0) - a2 * (y[n-2] if n > 1 else 0)
-    return y * (1 - r)
-
-def syllable(f0, vowel, dur, rise, rnd, formant_shift):
+def blip(freq_start, freq, dur):
     n = int(SR * dur); t = np.arange(n) / SR
-    f = f0 * (1 + rise * np.linspace(-0.5, 0.5, n)) * (1 + 0.012 * np.sin(2 * np.pi * 6 * t))
-    phase = np.cumsum(2 * np.pi * f / SR)
-    src = (np.sin(phase) + 0.5 * np.sin(2 * phase) + 0.3 * np.sin(3 * phase)) + 0.04 * rnd.standard_normal(n)
-    f1, f2 = VOWELS[vowel]
-    y = resonator(src, f1 * formant_shift, 90) + 0.8 * resonator(src, f2 * formant_shift, 130)
-    env = np.minimum(1, t / 0.015) * np.minimum(1, (dur - t) / 0.05)
-    # tiny consonant burst
-    k = int(SR * 0.012); y[:k] += 0.3 * rnd.standard_normal(k) * np.linspace(1, 0, k) * np.abs(y).max()
+    f = np.where(t < 0.018, freq_start + (freq - freq_start) * t / 0.018, freq)
+    ph = np.cumsum(2 * np.pi * f / SR)
+    y = np.sin(ph) + 0.30 * np.sin(2 * ph) + 0.10 * np.sin(3 * ph)
+    env = np.minimum(1, t / 0.008) * np.exp(-3.2 * t / dur) * np.minimum(1, (dur - t) / 0.012)
     return y * env
 
-def clip(seed, f0, shift, path):
-    rnd = np.random.default_rng(seed); pr = random.Random(seed)
-    parts = []
-    nsyl = pr.randint(3, 7)
-    for i in range(nsyl):
-        v = pr.choice(list(VOWELS)); d = pr.uniform(0.09, 0.2)
-        rise = 0.35 if (i == nsyl - 1 and pr.random() < .4) else pr.uniform(-0.15, 0.15)
-        parts.append(syllable(f0 * pr.uniform(0.9, 1.15), v, d, rise, rnd, shift))
-        parts.append(np.zeros(int(SR * pr.uniform(0.01, 0.05))))
-    y = np.concatenate(parts); y = y / (np.abs(y).max() + 1e-9) * 0.85
+def render(text, base, speed, seed):
+    rnd = random.Random(seed)
+    words = re.findall(r"[A-Za-z']+|[.,!?]", text)
+    out, n_total = [], sum(1 for w in words if w[0].isalpha())
+    wi = 0
+    for w in words:
+        if not w[0].isalpha():
+            out.append(np.zeros(int(SR * (0.22 if w in ".!?" else 0.12)))); continue
+        sylls = re.findall(r"[^aeiouy']*[aeiouy]+(?:[^aeiouy']+(?![aeiouy]))?|[^aeiouy']+", w.lower()) or [w.lower()]
+        for s in sylls:
+            v = next((c for c in s if c in VOW), "a")
+            semi = VOW[v] + (ord(s[0]) % 5) - 2 + rnd.uniform(-0.6, 0.6)
+            semi += 2.5 * np.sin(np.pi * wi / max(1, n_total))          # gentle phrase arch
+            if text.rstrip().endswith("?") and wi >= n_total - 2: semi += 3
+            if text.rstrip().endswith("!"): semi += 1
+            if text.rstrip().endswith(".") and wi >= n_total - 1: semi -= 2
+            f = base * 2 ** (semi / 12)
+            out.append(blip(f * 0.94, f, rnd.uniform(0.075, 0.105) / speed))
+            out.append(np.zeros(int(SR * 0.012)))
+        out.append(np.zeros(int(SR * 0.05)))
+        wi += 1
+    y = np.concatenate(out)
+    return y / (np.abs(y).max() + 1e-9) * 0.55
+
+def save(y, path):
     wav = path + ".wav"
     with wave.open(wav, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
         w.writeframes((y * 32767).astype(np.int16).tobytes())
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", "4", path + ".ogg"], check=True)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", "5", path + ".ogg"], check=True)
     os.remove(wav)
 
 if __name__ == "__main__":
     out = sys.argv[1]
-    for name, f0, shift in (("jj", 235, 1.12), ("mikey", 165, 0.95)):
-        for i in range(1, 7):
-            clip(hash((name, i)) % 10_000 if False else i * 97 + len(name), f0, shift, f"{out}/{name}/talk{i}")
+    for key, c in LINES.items():
+        os.makedirs(f"{out}/{key}", exist_ok=True)
+        for f in os.listdir(f"{out}/{key}"): os.remove(f"{out}/{key}/{f}")
+        for cat in CATS:
+            for (lid, text, _) in c[cat]:
+                save(render(text, c["voice"]["base"], c["voice"]["speed"], hash(lid) % 1000 if False else sum(map(ord, key + lid))),
+                     f"{out}/{key}/{lid}")
+    print("voices done")
