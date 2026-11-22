@@ -157,6 +157,20 @@ w(f"{RP}/animations/jjmikey.animation.json", {"format_version": "1.8.0", "animat
         "root": {"position": [0, -3, 0]}, "body": {"rotation": [22, 0, 0]}, "head": {"position": [0, 0, -2]},
         "rightLeg": {"rotation": [-18, 0, 0]}, "leftLeg": {"rotation": [-18, 0, 0]}}}}})
 
+# ---- Buddy Compass item ----
+w(f"{BP}/items/buddy_compass.json", {"format_version": "1.21.0", "minecraft:item": {
+    "description": {"identifier": "jjmikey:buddy_compass", "menu_category": {"category": "equipment"}},
+    "components": {"minecraft:icon": {"textures": {"default": "jjmikey_buddy_compass"}},
+                   "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True,
+                   "minecraft:display_name": {"value": "item.jjmikey:buddy_compass.name"}}}})
+w(f"{BP}/recipes/buddy_compass.json", {"format_version": "1.20.10", "minecraft:recipe_shapeless": {
+    "description": {"identifier": "jjmikey:buddy_compass"}, "tags": ["crafting_table"],
+    "ingredients": [{"item": "minecraft:compass"}, {"item": "minecraft:cookie"}],
+    "unlock": [{"item": "minecraft:compass"}],
+    "result": {"item": "jjmikey:buddy_compass"}}})
+w(f"{RP}/textures/item_texture.json", {"resource_pack_name": "jjmikey", "texture_name": "atlas.items",
+    "texture_data": {"jjmikey_buddy_compass": {"textures": "textures/items/buddy_compass"}}})
+
 # one sound per dialogue line
 sd = {}
 for key, c in LINES.items():
@@ -167,7 +181,7 @@ for key, c in LINES.items():
 w(f"{RP}/sounds/sound_definitions.json", {"format_version": "1.14.0", "sound_definitions": sd})
 w(f"{RP}/texts/languages.json", ["en_US"])
 w(f"{RP}/texts/en_US.lang", "entity.jjmikey:jj.name=JJ\nentity.jjmikey:mikey.name=Mikey\n"
-  "item.spawn_egg.entity.jjmikey:jj.name=JJ Spawn Egg\nitem.spawn_egg.entity.jjmikey:mikey.name=Mikey Spawn Egg\n")
+  "item.jjmikey:buddy_compass.name=Buddy Compass\nitem.jjmikey:buddy_compass=Buddy Compass\nitem.spawn_egg.entity.jjmikey:jj.name=JJ Spawn Egg\nitem.spawn_egg.entity.jjmikey:mikey.name=Mikey Spawn Egg\n")
 
 out = f"{ROOT}/JJ_and_Mikey.mcaddon"
 with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:

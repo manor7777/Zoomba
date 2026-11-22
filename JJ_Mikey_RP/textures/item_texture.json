@@ -1,0 +1,9 @@
+{
+  "resource_pack_name": "jjmikey",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "jjmikey_buddy_compass": {
+      "textures": "textures/items/buddy_compass"
+    }
+  }
+}

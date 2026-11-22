@@ -163,6 +163,9 @@ async function showMenu(player, buddy, tries = 0) {
     if (muted) player.removeTag("jjmikey_mute"); else player.addTag("jjmikey_mute");
     player.sendMessage(muted ? "§7Buddy voices on." : "§7Buddy voices off.");
   });
+  add("Give me a Buddy Compass", () => {
+    try { player.dimension.spawnItem(new ItemStack(COMPASS, 1), player.location); player.sendMessage("§7Here's a Buddy Compass. Hold it to see where JJ or Mikey is. Use it to pick who to track."); } catch { }
+  });
   add("Close", () => { });
   let res;
   try { res = await form.show(player); } catch { return; }
@@ -1052,6 +1055,7 @@ system.runInterval(() => {
   const all = allBuddies();
   for (const e of all) {
     claimIfEmpty(e); ensureName(e);
+    try { world.setDynamicProperty(`jjmikey:last:${TYPES[e.typeId]}:${e.dimension.id}`, JSON.stringify({ x: e.location.x, y: e.location.y, z: e.location.z })); } catch { }
     const s = st(e);
     if (games.has(e.id) || e.hasTag("jjmikey_sit") || e.hasTag("jjmikey_stay")) { s.trap = null; s.trapCount = 0; continue; }
     if (!s.trap) { s.trapSkip = !s.trapSkip; if (s.trapSkip) continue; } // when fine, check every other run (~10s)
@@ -1134,3 +1138,79 @@ system.runInterval(() => {
     if (!night && Math.random() < 0.03) startExplore(e, near[0]);
   }
 }, 600);
+
+// =====================================================================
+// BUDDY COMPASS: hold it to see which way JJ or Mikey is; use it to pick who (sneak + use = quick switch)
+// =====================================================================
+const COMPASS = "jjmikey:buddy_compass";
+const DIM_NAMES = { "minecraft:overworld": "Overworld", "minecraft:nether": "Nether", "minecraft:the_end": "End" };
+function compassTarget(p) { try { return p.getDynamicProperty("jjmikey:ctarget") === "mikey" ? "mikey" : "jj"; } catch { return "jj"; } }
+function setCompassTarget(p, k) { try { p.setDynamicProperty("jjmikey:ctarget", k); } catch { } }
+
+function arrowFor(p, t) {
+  const dx = t.x - p.location.x, dz = t.z - p.location.z;
+  let rel = (Math.atan2(-dx, dz) * 180) / Math.PI - p.getRotation().y;
+  rel = ((((rel + 180) % 360) + 360) % 360) - 180;
+  const i = ((Math.round(rel / 45) % 8) + 8) % 8;
+  return ["^", "^>", ">", "v>", "v", "<v", "<", "<^"][i];
+}
+
+function compassText(p) {
+  const key = compassTarget(p), type = key === "jj" ? "jjmikey:jj" : "jjmikey:mikey", c = LINES[key];
+  let loc = null, stale = false, trapped = false;
+  try {
+    const list = p.dimension.getEntities({ type }).sort((a, b) => dist(a.location, p.location) - dist(b.location, p.location));
+    if (list.length > 0) { loc = list[0].location; trapped = !!st(list[0]).trap; }
+  } catch { }
+  if (!loc) {
+    try {
+      const raw = world.getDynamicProperty(`jjmikey:last:${key}:${p.dimension.id}`);
+      if (raw) { loc = JSON.parse(raw); stale = true; }
+    } catch { }
+  }
+  if (!loc) {
+    for (const [id, name] of Object.entries(DIM_NAMES)) {
+      if (id === p.dimension.id) continue;
+      try { if (world.getDynamicProperty(`jjmikey:last:${key}:${id}`)) return `${c.color}${c.name}§r was last seen in the ${name}.`; } catch { }
+    }
+    return `${c.color}${c.name}§r: no sign of them yet. Keep exploring!`;
+  }
+  const h = Math.floor(dist2(p.location, loc)), dy = Math.round(loc.y - p.location.y);
+  const vert = dy <= -3 ? `${-dy} below` : dy >= 3 ? `${dy} above` : "same level";
+  if (h <= 4 && Math.abs(dy) <= 3) return `${c.color}${c.name}§r: §aright here!`;
+  return `${c.color}${c.name}§r  [ ${arrowFor(p, loc)} ]  ${h} blocks ${compass(p.location, loc)}, ${vert}${stale ? " §7(last seen)" : ""}${trapped ? " §c(needs help!)" : ""}`;
+}
+
+system.runInterval(() => {
+  let players = [];
+  try { players = world.getPlayers(); } catch { return; }
+  for (const p of players) {
+    let item;
+    try { item = p.getComponent("minecraft:equippable").getEquipment("Mainhand"); } catch { continue; }
+    if (item && item.typeId === COMPASS) { try { actionBar(p, compassText(p)); } catch { } }
+  }
+}, 10);
+
+async function compassMenu(p) {
+  const key = compassTarget(p);
+  const form = new ActionFormData().title("Buddy Compass")
+    .body(`Tracking: ${LINES[key].name}\n\nTip: sneak + use switches between them without this menu.`)
+    .button("Track JJ").button("Track Mikey").button("Close");
+  let res;
+  try { res = await form.show(p); } catch { return; }
+  if (res.canceled || res.selection === 2) return;
+  setCompassTarget(p, res.selection === 0 ? "jj" : "mikey");
+  p.sendMessage(`§7Buddy Compass is now tracking ${res.selection === 0 ? "JJ" : "Mikey"}.`);
+}
+
+world.afterEvents.itemUse.subscribe((ev) => {
+  if (!ev.itemStack || ev.itemStack.typeId !== COMPASS) return;
+  const p = ev.source;
+  if (p.isSneaking) {
+    const next = compassTarget(p) === "jj" ? "mikey" : "jj";
+    setCompassTarget(p, next);
+    p.sendMessage(`§7Buddy Compass is now tracking ${LINES[next].name}.`);
+  } else {
+    system.run(() => compassMenu(p));
+  }
+});

@@ -1,4 +1,6 @@
 entity.jjmikey:jj.name=JJ
 entity.jjmikey:mikey.name=Mikey
+item.jjmikey:buddy_compass.name=Buddy Compass
+item.jjmikey:buddy_compass=Buddy Compass
 item.spawn_egg.entity.jjmikey:jj.name=JJ Spawn Egg
 item.spawn_egg.entity.jjmikey:mikey.name=Mikey Spawn Egg
