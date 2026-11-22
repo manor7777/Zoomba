@@ -876,6 +876,110 @@ export const LINES = {
     "text": "Okay, no worries. Never mind!",
     "when": []
    }
+  ],
+  "trap_together": [
+   {
+    "id": "trap_together0",
+    "text": "We're trapped! Somebody help us!",
+    "when": []
+   },
+   {
+    "id": "trap_together1",
+    "text": "Help! We're stuck and we can't get out!",
+    "when": []
+   }
+  ],
+  "trap_alone": [
+   {
+    "id": "trap_alone0",
+    "text": "Help! I'm stuck! Can anybody hear me?",
+    "when": []
+   },
+   {
+    "id": "trap_alone1",
+    "text": "Hello? I'm trapped over here!",
+    "when": []
+   }
+  ],
+  "trap_snow": [
+   {
+    "id": "trap_snow0",
+    "text": "Help! I'm sinking in the snow, it's freezing!",
+    "when": []
+   }
+  ],
+  "trap_snow_together": [
+   {
+    "id": "trap_snow_together0",
+    "text": "Help! We're stuck in the snow, it's so cold!",
+    "when": []
+   }
+  ],
+  "trap_explore": [
+   {
+    "id": "trap_explore0",
+    "text": "I went exploring and now I'm stuck! Help!",
+    "when": []
+   }
+  ],
+  "trap_hurry": [
+   {
+    "id": "trap_hurry0",
+    "text": "We're over this way! Please hurry!",
+    "when": []
+   }
+  ],
+  "trap_again": [
+   {
+    "id": "trap_again0",
+    "text": "Hello? We're still stuck! Please hurry!",
+    "when": []
+   }
+  ],
+  "trap_found": [
+   {
+    "id": "trap_found0",
+    "text": "You found us! Break a block to let us out!",
+    "when": []
+   }
+  ],
+  "trap_rescued": [
+   {
+    "id": "trap_rescued0",
+    "text": "Thank you for saving us! You're the best!",
+    "when": []
+   }
+  ],
+  "explore_start": [
+   {
+    "id": "explore_start0",
+    "text": "I'm going to go exploring! Back in a bit!",
+    "when": []
+   },
+   {
+    "id": "explore_start1",
+    "text": "Time for an adventure! Don't wait up!",
+    "when": []
+   }
+  ],
+  "explore_idle": [
+   {
+    "id": "explore_idle0",
+    "text": "Ooh, I wonder what's over there!",
+    "when": []
+   },
+   {
+    "id": "explore_idle1",
+    "text": "I bet there's treasure out here somewhere.",
+    "when": []
+   }
+  ],
+  "explore_end": [
+   {
+    "id": "explore_end0",
+    "text": "That was a great adventure! I wish you'd come along.",
+    "when": []
+   }
   ]
  },
  "mikey": {
@@ -1753,6 +1857,110 @@ export const LINES = {
    {
     "id": "find_cancel0",
     "text": "Okay, okay. We can stop.",
+    "when": []
+   }
+  ],
+  "trap_together": [
+   {
+    "id": "trap_together0",
+    "text": "We're trapped, and JJ's here too! Help!",
+    "when": []
+   },
+   {
+    "id": "trap_together1",
+    "text": "Help! We can't get out and it's scary!",
+    "when": []
+   }
+  ],
+  "trap_alone": [
+   {
+    "id": "trap_alone0",
+    "text": "Help! I'm stuck and nobody's here!",
+    "when": []
+   },
+   {
+    "id": "trap_alone1",
+    "text": "Hello? Anybody? I'm trapped!",
+    "when": []
+   }
+  ],
+  "trap_snow": [
+   {
+    "id": "trap_snow0",
+    "text": "Help! The snow is swallowing me, it's so cold!",
+    "when": []
+   }
+  ],
+  "trap_snow_together": [
+   {
+    "id": "trap_snow_together0",
+    "text": "Help! We're sinking in the snow, and it's freezing!",
+    "when": []
+   }
+  ],
+  "trap_explore": [
+   {
+    "id": "trap_explore0",
+    "text": "I shouldn't have gone exploring! Help!",
+    "when": []
+   }
+  ],
+  "trap_hurry": [
+   {
+    "id": "trap_hurry0",
+    "text": "We're over this way! Hurry, please!",
+    "when": []
+   }
+  ],
+  "trap_again": [
+   {
+    "id": "trap_again0",
+    "text": "Please hurry, it's getting scary!",
+    "when": []
+   }
+  ],
+  "trap_found": [
+   {
+    "id": "trap_found0",
+    "text": "You found us! Break a block and let us out!",
+    "when": []
+   }
+  ],
+  "trap_rescued": [
+   {
+    "id": "trap_rescued0",
+    "text": "Thank you for saving us! I thought we'd be stuck forever!",
+    "when": []
+   }
+  ],
+  "explore_start": [
+   {
+    "id": "explore_start0",
+    "text": "I'm just going to look around. Maybe find snacks.",
+    "when": []
+   },
+   {
+    "id": "explore_start1",
+    "text": "Going exploring! Don't worry about me.",
+    "when": []
+   }
+  ],
+  "explore_idle": [
+   {
+    "id": "explore_idle0",
+    "text": "Hmm, what's over this hill?",
+    "when": []
+   },
+   {
+    "id": "explore_idle1",
+    "text": "I hope there's food out here.",
+    "when": []
+   }
+  ],
+  "explore_end": [
+   {
+    "id": "explore_end0",
+    "text": "Okay, I'm done exploring. That was tiring.",
     "when": []
    }
   ]

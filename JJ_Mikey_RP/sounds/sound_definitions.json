@@ -1442,6 +1442,182 @@
         }
       ]
     },
+    "jjmikey.jj.trap_together0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_together0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_together1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_together1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_alone0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_alone0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_alone1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_alone1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_snow0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_snow0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_snow_together0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_snow_together0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_explore0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_explore0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_hurry0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_hurry0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_again0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_again0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_found0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_found0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.trap_rescued0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/trap_rescued0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.explore_start0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/explore_start0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.explore_start1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/explore_start1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.explore_idle0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/explore_idle0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.explore_idle1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/explore_idle1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.jj.explore_end0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/explore_end0",
+          "volume": 1.0
+        }
+      ]
+    },
     "jjmikey.mikey.hi": {
       "category": "neutral",
       "min_distance": 2,
@@ -2879,6 +3055,182 @@
       "sounds": [
         {
           "name": "sounds/mikey/find_cancel0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_together0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_together0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_together1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_together1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_alone0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_alone0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_alone1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_alone1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_snow0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_snow0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_snow_together0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_snow_together0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_explore0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_explore0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_hurry0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_hurry0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_again0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_again0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_found0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_found0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.trap_rescued0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/trap_rescued0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.explore_start0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/explore_start0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.explore_start1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/explore_start1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.explore_idle0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/explore_idle0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.explore_idle1": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/explore_idle1",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.explore_end0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/explore_end0",
           "volume": 1.0
         }
       ]

@@ -53,6 +53,8 @@ for key, c in LINES.items():
           "minecraft:behavior.melee_attack": {"priority": 3, "speed_multiplier": 1.2, "track_target": True}
         },
         "stay": {"minecraft:movement": {"value": 0.0}},
+        "explore": {"minecraft:movement": {"value": 0.3},
+                    "minecraft:behavior.random_stroll": {"priority": 5, "speed_multiplier": 1.0, "xz_dist": 48, "y_dist": 10, "interval": 12}},
         "flee": {"minecraft:behavior.avoid_mob_type": {"priority": 0, "remove_target": False, "entity_types": [
             {"filters": {"test": "is_family", "subject": "other", "value": "player"}, "max_dist": 12,
              "walk_speed_multiplier": 1.3, "sprint_speed_multiplier": 1.7}]}}
@@ -89,6 +91,8 @@ for key, c in LINES.items():
         "jjmikey:sit": {"add": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": True}},
         "jjmikey:crouch_on": {"set_property": {"jjmikey:crouch": True}},
         "jjmikey:crouch_off": {"set_property": {"jjmikey:crouch": False}},
+        "jjmikey:explore_on": {"add": {"component_groups": ["explore"]}},
+        "jjmikey:explore_off": {"remove": {"component_groups": ["explore"]}},
         "jjmikey:flee_on": {"add": {"component_groups": ["flee"]}},
         "jjmikey:flee_off": {"remove": {"component_groups": ["flee"]}},
         "jjmikey:go": {"remove": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": False}}

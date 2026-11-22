@@ -71,6 +71,18 @@
           "value": 0.0
         }
       },
+      "explore": {
+        "minecraft:movement": {
+          "value": 0.3
+        },
+        "minecraft:behavior.random_stroll": {
+          "priority": 5,
+          "speed_multiplier": 1.0,
+          "xz_dist": 48,
+          "y_dist": 10,
+          "interval": 12
+        }
+      },
       "flee": {
         "minecraft:behavior.avoid_mob_type": {
           "priority": 0,
@@ -201,6 +213,20 @@
       "jjmikey:crouch_off": {
         "set_property": {
           "jjmikey:crouch": false
+        }
+      },
+      "jjmikey:explore_on": {
+        "add": {
+          "component_groups": [
+            "explore"
+          ]
+        }
+      },
+      "jjmikey:explore_off": {
+        "remove": {
+          "component_groups": [
+            "explore"
+          ]
         }
       },
       "jjmikey:flee_on": {

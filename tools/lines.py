@@ -212,3 +212,37 @@ for _k in ("jj", "mikey"):
     for _cat, _t in _CHAT[_k].items():
         LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
 CATS += list(_CHAT["jj"].keys())
+
+# ---------- v1.7: trapped / rescue / exploring ----------
+_V17 = {
+ "jj": {
+  "trap_together": ["We're trapped! Somebody help us!", "Help! We're stuck and we can't get out!"],
+  "trap_alone": ["Help! I'm stuck! Can anybody hear me?", "Hello? I'm trapped over here!"],
+  "trap_snow": ["Help! I'm sinking in the snow, it's freezing!"],
+  "trap_snow_together": ["Help! We're stuck in the snow, it's so cold!"],
+  "trap_explore": ["I went exploring and now I'm stuck! Help!"],
+  "trap_hurry": ["We're over this way! Please hurry!"],
+  "trap_again": ["Hello? We're still stuck! Please hurry!"],
+  "trap_found": ["You found us! Break a block to let us out!"],
+  "trap_rescued": ["Thank you for saving us! You're the best!"],
+  "explore_start": ["I'm going to go exploring! Back in a bit!", "Time for an adventure! Don't wait up!"],
+  "explore_idle": ["Ooh, I wonder what's over there!", "I bet there's treasure out here somewhere."],
+  "explore_end": ["That was a great adventure! I wish you'd come along."]},
+ "mikey": {
+  "trap_together": ["We're trapped, and JJ's here too! Help!", "Help! We can't get out and it's scary!"],
+  "trap_alone": ["Help! I'm stuck and nobody's here!", "Hello? Anybody? I'm trapped!"],
+  "trap_snow": ["Help! The snow is swallowing me, it's so cold!"],
+  "trap_snow_together": ["Help! We're sinking in the snow, and it's freezing!"],
+  "trap_explore": ["I shouldn't have gone exploring! Help!"],
+  "trap_hurry": ["We're over this way! Hurry, please!"],
+  "trap_again": ["Please hurry, it's getting scary!"],
+  "trap_found": ["You found us! Break a block and let us out!"],
+  "trap_rescued": ["Thank you for saving us! I thought we'd be stuck forever!"],
+  "explore_start": ["I'm just going to look around. Maybe find snacks.", "Going exploring! Don't worry about me."],
+  "explore_idle": ["Hmm, what's over this hill?", "I hope there's food out here."],
+  "explore_end": ["Okay, I'm done exploring. That was tiring."]},
+}
+for _k in ("jj", "mikey"):
+    for _cat, _t in _V17[_k].items():
+        LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
+CATS += list(_V17["jj"].keys())

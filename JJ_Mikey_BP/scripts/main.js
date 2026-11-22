@@ -11,7 +11,11 @@ const rand = (a, b) => a + Math.random() * (b - a);
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const st = (e) => {
   let s = state.get(e.id);
-  if (!s) { s = { next: system.currentTick + 20 * rand(20, 60), last: "", lastGift: -99999 }; state.set(e.id, s); }
+  if (!s) {
+    let ex = 0; try { if (e.hasTag("jjmikey_explore")) ex = system.currentTick + 20 * 60 * 3; } catch { }
+    s = { next: system.currentTick + 20 * rand(20, 60), last: "", lastGift: -99999, exploreUntil: ex };
+    state.set(e.id, s);
+  }
   return s;
 };
 const alive = (e) => { try { return e && e.isValid; } catch { return false; } };
@@ -115,7 +119,7 @@ system.runInterval(() => {
       try { list = dim.getEntities({ type }); } catch { continue; }
       for (const e of list) {
         const s = st(e);
-        if (games.has(e.id)) continue;
+        if (games.has(e.id) || st(e).trap) continue;
         if (now < s.next) continue;
         s.next = now + 20 * rand(45, 120);
         let near = [];
@@ -140,6 +144,10 @@ async function showMenu(player, buddy, tries = 0) {
   add("Chat", () => speak(buddy, "talk", player));
   add(`Talk to ${c.name} (type)`, () => talkForm(player, buddy));
   add("Find something...", () => findMenu(player, buddy));
+  add(buddy.hasTag("jjmikey_explore") ? "Stop exploring (come back)" : "Go exploring", () => {
+    if (buddy.hasTag("jjmikey_explore")) { stopExplore(buddy, player); setMode(buddy, player, "follow"); }
+    else if (!startExplore(buddy, player)) player.sendMessage("§7Not right now.");
+  });
   add("Ask for a gift", () => gift(buddy, player));
   if (mode === "follow") {
     add("Stay here (standing)", () => setMode(buddy, player, "stay"));
@@ -209,7 +217,49 @@ function ensureName(e) {
     if (e.typeId in TYPES && !e.nameTag) e.nameTag = LINES[TYPES[e.typeId]].name;
   } catch { }
 }
-world.afterEvents.entitySpawn.subscribe((ev) => ensureName(ev.entity));
+// ---------- only one JJ and one Mikey per dimension ----------
+const recKey = (e) => `jjmikey:active:${e.dimension.id}:${e.typeId}`;
+function claim(e) {
+  try { world.setDynamicProperty(recKey(e), e.id); world.setDynamicProperty(`jjmikey:rk:${e.id}`, recKey(e)); } catch { }
+}
+function claimIfEmpty(e) {
+  try { if (!world.getDynamicProperty(recKey(e))) claim(e); } catch { }
+}
+world.afterEvents.entitySpawn.subscribe((ev) => {
+  const e = ev.entity;
+  try {
+    if (!e || !(e.typeId in TYPES)) return;
+    if (ev.cause === "Loaded") { claimIfEmpty(e); ensureName(e); return; }
+    const rec = world.getDynamicProperty(recKey(e));
+    if (rec && rec !== e.id) {
+      const name = LINES[TYPES[e.typeId]].name;
+      let near = [];
+      try { near = e.dimension.getPlayers({ location: e.location, maxDistance: 24 }); } catch { }
+      for (const p of near) p.sendMessage(`§7There's already a ${name} in this dimension (only one of each at a time). If they've gone missing, type §e/scriptevent buddy:reset`);
+      system.run(() => { try { e.remove(); } catch { try { e.kill(); } catch { } } });
+      return;
+    }
+    claim(e);
+    ensureName(e);
+  } catch { }
+});
+world.afterEvents.entityDie.subscribe((ev) => {
+  try {
+    const e = ev.deadEntity;
+    if (!e || !(e.typeId in TYPES)) return;
+    const k = world.getDynamicProperty(`jjmikey:rk:${e.id}`);
+    if (k && world.getDynamicProperty(k) === e.id) world.setDynamicProperty(k, undefined);
+  } catch { }
+});
+function resetRecords(player) {
+  try {
+    for (const type of Object.keys(TYPES)) {
+      world.setDynamicProperty(`jjmikey:active:${player.dimension.id}:${type}`, undefined);
+      for (const b of player.dimension.getEntities({ type })) claimIfEmpty(b);
+    }
+    player.sendMessage("§7Buddy records reset for this dimension.");
+  } catch { }
+}
 
 // ---------- noticing things (diamonds, chests, flowers, ...) ----------
 const FLOWERS = ["dandelion", "poppy", "blue_orchid", "allium", "azure_bluet", "red_tulip", "orange_tulip", "white_tulip", "pink_tulip",
@@ -275,7 +325,7 @@ system.runInterval(() => {
       try { list = dim.getEntities({ type }); } catch { continue; }
       for (const e of list) {
         ensureName(e);
-        if (games.has(e.id)) continue;
+        if (games.has(e.id) || st(e).trap) continue;
         let near = [];
         try { near = dim.getPlayers({ location: e.location, maxDistance: 14 }); } catch { }
         if (near.length > 0) notice(e, near[0]);
@@ -333,6 +383,7 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
   if (!ev.id.startsWith("buddy:")) return;
   const cmd = ev.id.slice(6);
   if (cmd === "hint") { giveHint(ev.sourceEntity); return; }
+  if (cmd === "reset") { resetRecords(ev.sourceEntity); return; }
   if (cmd === "say") { respondTo(ev.sourceEntity, ev.message, false); return; }
   const mode = cmd === "sit" ? "sit" : cmd === "stay" ? "stay" : cmd === "follow" || cmd === "wander" ? "follow" : null;
   const player = ev.sourceEntity;
@@ -813,6 +864,9 @@ function reply(buddy, player, t) {
   if (has(/where( are| r)? (you|u)\b|^where( is|'s)?$|where did you go/)) return speak(buddy, "chat_where", player);
   if (has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/) && key) return startFind(buddy, player, key);
   if (has(/\b(find|show me|lead me|take me|locate|search|look for)\b/)) return speak(buddy, "find_what", player);
+  if (st(buddy).trap && has(/where|help|directions|find you|how do i get|how to get|which way|find us/)) return trapReply(buddy, player);
+  if (has(/come back|stop explor/)) { if (buddy.hasTag("jjmikey_explore")) stopExplore(buddy, player); return setMode(buddy, player, "follow"); }
+  if (has(/explor|adventure|for a walk|wander off/)) { if (!startExplore(buddy, player)) speak(buddy, "chat_unknown", player); return; }
   if (has(/\bsit\b/)) return setMode(buddy, player, "sit");
   if (has(/\b(stay|wait|stand|freeze)\b/)) return setMode(buddy, player, "stay");
   if (has(/\b(follow|come|with me|let'?s go|walk with)\b/)) return setMode(buddy, player, "follow");
@@ -877,3 +931,206 @@ try {
     world.afterEvents.chatSend.subscribe((ev) => respondTo(ev.sender, ev.message, true));
   }
 } catch { }
+
+// =====================================================================
+// TRAPPED: if they can't walk out of where they are, they call for help and give directions
+// =====================================================================
+const DOORISH = /_door$|fence_gate$/;
+function passable(b) {
+  if (!b) return null;
+  const id = b.typeId;
+  if (/powder_snow|cobweb|lava|fire|berry_bush|cactus|magma/.test(id) || b.isLiquid) return false;
+  if (DOORISH.test(id) && !id.includes("iron")) return true;
+  return b.isAir || !b.isSolid;
+}
+function walkOk(dim, x, y, z) { // true / false / null (unknown, e.g. unloaded)
+  let below, a, b;
+  try { below = dim.getBlock({ x, y: y - 1, z }); a = dim.getBlock({ x, y, z }); b = dim.getBlock({ x, y: y + 1, z }); } catch { return null; }
+  if (!below || !a || !b) return null;
+  if (!passable(a) || !passable(b)) return false;
+  return below.isSolid && !/powder_snow|magma|cactus/.test(below.typeId);
+}
+// returns "snow" | "cave" | "pit" if there is no way out, otherwise null
+function trappedKind(dim, loc) {
+  const sx = Math.floor(loc.x), sy = Math.floor(loc.y + 0.01), sz = Math.floor(loc.z);
+  try {
+    const f = dim.getBlock({ x: sx, y: sy, z: sz }), h = dim.getBlock({ x: sx, y: sy + 1, z: sz });
+    if ((f && f.typeId === "minecraft:powder_snow") || (h && h.typeId === "minecraft:powder_snow")) return "snow";
+  } catch { return null; }
+  if (walkOk(dim, sx, sy, sz) !== true) return null; // unsure (slab, stairs, unloaded...): don't guess
+  const key = (x, y, z) => x + "," + y + "," + z;
+  const seen = new Set([key(sx, sy, sz)]), stack = [[sx, sy, sz]];
+  let n = 0;
+  while (stack.length > 0) {
+    const [x, y, z] = stack.pop();
+    if (++n >= 140) return null;                                   // big open space
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const nx = x + dx, nz = z + dz;
+      if (Math.abs(nx - sx) > 14 || Math.abs(nz - sz) > 14) return null; // got far away: not trapped
+      for (const dy of [0, 1, -1, -2, -3]) {
+        const ny = y + dy, k = key(nx, ny, nz);
+        if (seen.has(k)) break;
+        const ok = walkOk(dim, nx, ny, nz);
+        if (ok === null) return null;
+        if (!ok) continue;
+        if (dy === 1) { // stepping up needs headroom
+          let hb; try { hb = dim.getBlock({ x, y: y + 2, z }); } catch { return null; }
+          if (!passable(hb)) continue;
+        }
+        seen.add(k); stack.push([nx, ny, nz]);
+        break;
+      }
+    }
+  }
+  try {
+    const top = dim.getTopmostBlock({ x: sx, z: sz });
+    return top && top.location.y > sy + 2 ? "cave" : "pit";
+  } catch { return "cave"; }
+}
+
+function allBuddies() {
+  const out = [];
+  for (const dimId of ["overworld", "nether", "the_end"]) {
+    let dim; try { dim = world.getDimension(dimId); } catch { continue; }
+    for (const type of Object.keys(TYPES)) { try { for (const e of dim.getEntities({ type })) out.push(e); } catch { } }
+  }
+  return out;
+}
+
+function trapDirections(e, p) {
+  const a = p.location, b = e.location;
+  const h = Math.floor(dist2(a, b)), dy = Math.round(b.y - a.y);
+  const vert = dy <= -3 ? `${-dy} blocks below you` : dy >= 3 ? `${dy} blocks above you` : "at about your height";
+  return `${compass(a, b)} of you, ${h} blocks away, ${vert}`;
+}
+
+function trapHurry(e, text, players) {
+  const c = LINES[TYPES[e.typeId]], key = TYPES[e.typeId];
+  for (const p of players) { try { p.sendMessage(`${c.color}${c.name}§r: ${text}`); } catch { } }
+  try { e.runCommand(`playsound jjmikey.${key}.trap_hurry0 @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1`); } catch { }
+}
+
+function trapReply(buddy, player) {
+  trapHurry(buddy, `We're ${trapDirections(buddy, player)}. Please hurry!`, [player]);
+}
+
+function trapCall(e, all, now) {
+  const s = st(e);
+  if (now < (s.trapNext || 0)) return;
+  s.trapNext = now + 20 * 40;
+  const mate = all.find((o) => o !== e && o.typeId !== e.typeId && st(o).trap && dist(o.location, e.location) < 10);
+  const snow = s.trap === "snow", first = !s.trapCalled;
+  s.trapCalled = true;
+  let cat = "trap_again";
+  if (first) cat = mate ? (snow ? "trap_snow_together" : "trap_together") : snow ? "trap_snow" : e.hasTag("jjmikey_explore") ? "trap_explore" : "trap_alone";
+  const delay = mate && e.id > mate.id ? 40 : 0; // when both are stuck, they take turns
+  system.runTimeout(() => {
+    if (!alive(e) || !st(e).trap) return;
+    speak(e, cat, null);
+    system.runTimeout(() => {
+      if (!alive(e) || !st(e).trap) return;
+      let players = [];
+      try { players = world.getPlayers().filter((p) => p.dimension.id === e.dimension.id && dist(p.location, e.location) <= 200); } catch { }
+      if (players.length === 0) return;
+      for (const p of players) {
+        const c = LINES[TYPES[e.typeId]];
+        try { p.sendMessage(`${c.color}${c.name}§r: We're ${trapDirections(e, p)}. (${Math.floor(e.location.x)}, ${Math.floor(e.location.y)}, ${Math.floor(e.location.z)})`); } catch { }
+      }
+      try { e.runCommand(`playsound jjmikey.${TYPES[e.typeId]}.trap_hurry0 @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1`); } catch { }
+    }, 50);
+  }, delay);
+}
+
+function rescued(e) {
+  const s = st(e);
+  s.trapCalled = false; s.trapFound = false; s.trapNext = 0;
+  s.thanks = system.currentTick + 20 * 60 * 5; // thank the nearest player, now or when they show up
+}
+
+system.runInterval(() => {
+  const now = system.currentTick;
+  const all = allBuddies();
+  for (const e of all) {
+    claimIfEmpty(e); ensureName(e);
+    const s = st(e);
+    if (games.has(e.id) || e.hasTag("jjmikey_sit") || e.hasTag("jjmikey_stay")) { s.trap = null; s.trapCount = 0; continue; }
+    if (!s.trap) { s.trapSkip = !s.trapSkip; if (s.trapSkip) continue; } // when fine, check every other run (~10s)
+    let kind = null;
+    try { kind = trappedKind(e.dimension, e.location); } catch { }
+    if (kind) {
+      s.trapCount = (s.trapCount || 0) + 1;
+      if (!s.trap && s.trapCount >= 2) { s.trap = kind; s.trapNext = 0; }
+    } else {
+      s.trapCount = 0;
+      if (s.trap) { s.trap = null; rescued(e); }
+    }
+    if (s.trap) trapCall(e, all, now);
+  }
+}, 100);
+
+// directions on screen + "you found us" + "thank you for saving us"
+system.runInterval(() => {
+  const now = system.currentTick;
+  let players = [];
+  try { players = world.getPlayers(); } catch { return; }
+  for (const e of allBuddies()) {
+    const s = st(e);
+    const near = players.filter((p) => p.dimension.id === e.dimension.id).sort((a, b) => dist(a.location, e.location) - dist(b.location, e.location));
+    if (s.trap) {
+      const c = LINES[TYPES[e.typeId]];
+      for (const p of near) {
+        if (dist(p.location, e.location) > 250) continue;
+        const dy = Math.round(e.location.y - p.location.y);
+        actionBar(p, `§cHelp! ${c.name}: ${compass(p.location, e.location)}, ${Math.floor(dist2(p.location, e.location))} blocks, ${dy <= -3 ? -dy + " below" : dy >= 3 ? dy + " above" : "same level"}`);
+      }
+      if (!s.trapFound && near.length > 0 && dist(near[0].location, e.location) <= 8) { s.trapFound = true; speak(e, "trap_found", near[0]); }
+    } else if (s.thanks) {
+      if (now > s.thanks) s.thanks = 0;
+      else if (near.length > 0 && dist(near[0].location, e.location) <= 12) {
+        s.thanks = 0;
+        heart(e);
+        speak(e, "trap_rescued", near[0]);
+        gift(e, near[0], true);
+      }
+    }
+  }
+}, 40);
+
+// =====================================================================
+// EXPLORING: they wander far off on trips (uncommon on their own for wild ones, or on request)
+// =====================================================================
+function startExplore(buddy, player) {
+  const s = st(buddy);
+  if (!alive(buddy) || games.has(buddy.id) || s.trap || buddy.hasTag("jjmikey_explore")) return false;
+  applyMode(buddy, "follow");
+  buddy.addTag("jjmikey_explore");
+  try { buddy.triggerEvent("jjmikey:explore_on"); } catch { }
+  s.exploreUntil = system.currentTick + 20 * 60 * rand(4, 8);
+  speak(buddy, "explore_start", player);
+  return true;
+}
+function stopExplore(buddy, player) {
+  try { buddy.removeTag("jjmikey_explore"); buddy.triggerEvent("jjmikey:explore_off"); } catch { }
+  const s = st(buddy);
+  s.exploreUntil = 0; s.exploreCool = system.currentTick + 20 * 60 * 10;
+  if (player) speak(buddy, "explore_end", player);
+}
+system.runInterval(() => {
+  const now = system.currentTick;
+  let players = [];
+  try { players = world.getPlayers(); } catch { }
+  for (const e of allBuddies()) {
+    const s = st(e);
+    const near = players.filter((p) => p.dimension.id === e.dimension.id && dist(p.location, e.location) <= 20);
+    if (e.hasTag("jjmikey_explore")) {
+      if (s.trap) continue;
+      if (now >= s.exploreUntil) stopExplore(e, near[0]);
+      else if (near.length > 0 && Math.random() < 0.2) speak(e, "explore_idle", near[0]);
+      continue;
+    }
+    if (e.hasTag("jjmikey_tamed") || games.has(e.id) || s.trap || e.hasTag("jjmikey_sit") || e.hasTag("jjmikey_stay")) continue;
+    if (now < (s.exploreCool || 0)) continue;
+    let night = false; try { const t = world.getTimeOfDay(); night = t >= 13000 && t < 23000; } catch { }
+    if (!night && Math.random() < 0.03) startExplore(e, near[0]);
+  }
+}, 600);
