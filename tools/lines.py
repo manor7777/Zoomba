@@ -99,3 +99,44 @@ LINES = {
 }
 CATS = ["talk", "gift", "nogift", "tamed", "stay", "sit", "go", "punch", "punch_block", "punch_none",
         "notice_diamond", "notice_spawner", "notice_ore", "notice_creeper", "notice_chest", "notice_villager", "notice_flower"]
+
+# ---------- v1.5: catchphrases + games ----------
+def _one(i, t): return [(i, t, [])]
+_COMMON = {  # same words for both, different voices
+ "sim_jump": "Simon says jump!", "sim_crouch": "Simon says crouch!", "sim_sprint": "Simon says sprint!", "sim_look": "Simon says look up!",
+ "trap_jump": "Jump!", "trap_crouch": "Crouch!", "trap_sprint": "Sprint!", "trap_look": "Look up!",
+ "rps_start": "Rock, paper, scissors, shoot!",
+}
+_PER = {
+ "jj": {
+  "catch": ["Don't forget to like and subscribe!", "Smash that like button!", "Hit the bell so you don't miss the next one!",
+            "Welcome back to the channel, everybody!", "Leave a comment down below!", "Thanks for watching, see you next time!"],
+  "hs_start": "Okay! Count to twenty and no peeking. I'm going to hide!",
+  "hs_giggle": "Hehe... you'll never find me!", "hs_psst": "Psst! Over here! ...No, not here! Don't look here!",
+  "hs_found": "You found me! You're so good at this!", "hs_timeout": "Ha! You couldn't find me. I win!",
+  "tag_start": "Okay, try to catch me! Three tags and you win!", "tag_tagged": "Tagged me! Okay, again, catch me!",
+  "tag_end": "That was fun! Good game!",
+  "simon_start": "Let's play Simon Says! Only do it if Simon says!",
+  "sim_good": "Nice moves!", "sim_bad": "Gotcha! Simon didn't say!", "sim_miss": "Too slow!",
+  "sim_win": "You win! You're the Simon Says champion!", "sim_lose": "I win this time! Try again!",
+  "rps_win": "Ha! I win!", "rps_lose": "Aww, you got me!", "rps_tie": "A tie! Go again!"},
+ "mikey": {
+  "catch": ["Like and subscribe, okay? Please?", "Don't forget to hit the bell!", "Comment your favorite snack below!",
+            "Welcome back, guys!", "Smash the like button for me!", "Subscribe, or JJ eats all your cookies."],
+  "hs_start": "Count to twenty! And no peeking, I mean it!",
+  "hs_giggle": "Shh... I'm hiding. Hehe.", "hs_psst": "Psst... I can see you. You're getting close.",
+  "hs_found": "Aww, you found me already?!", "hs_timeout": "I win! I was hiding so well.",
+  "tag_start": "You can't catch me! Nobody can catch me!", "tag_tagged": "Hey! Okay, okay, run again!",
+  "tag_end": "Phew, I need a snack break. Good game!",
+  "simon_start": "Simon says... we play Simon Says!",
+  "sim_good": "Oh, you're good!", "sim_bad": "Ha! Simon didn't say that!", "sim_miss": "Hurry up, hurry up!",
+  "sim_win": "You win! How do you do that?", "sim_lose": "I win! Don't be sad.",
+  "rps_win": "Yes! I got you!", "rps_lose": "No way! You win.", "rps_tie": "Same thing! Again!"},
+}
+for _k in ("jj", "mikey"):
+    for _cat, _t in _COMMON.items(): LINES[_k][_cat] = _one(_cat, _t)
+    for _cat, _t in _PER[_k].items():
+        LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)] if isinstance(_t, list) else _one(_cat, _t)
+CATS += ["catch", "hs_start", "hs_giggle", "hs_psst", "hs_found", "hs_timeout", "tag_start", "tag_tagged", "tag_end", "simon_start",
+         "sim_jump", "sim_crouch", "sim_sprint", "sim_look", "trap_jump", "trap_crouch", "trap_sprint", "trap_look",
+         "sim_good", "sim_bad", "sim_miss", "sim_win", "sim_lose", "rps_start", "rps_win", "rps_lose", "rps_tie"]

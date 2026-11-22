@@ -367,6 +367,220 @@ export const LINES = {
     "text": "Look at those pretty flowers!",
     "when": []
    }
+  ],
+  "catch": [
+   {
+    "id": "catch0",
+    "text": "Don't forget to like and subscribe!",
+    "when": []
+   },
+   {
+    "id": "catch1",
+    "text": "Smash that like button!",
+    "when": []
+   },
+   {
+    "id": "catch2",
+    "text": "Hit the bell so you don't miss the next one!",
+    "when": []
+   },
+   {
+    "id": "catch3",
+    "text": "Welcome back to the channel, everybody!",
+    "when": []
+   },
+   {
+    "id": "catch4",
+    "text": "Leave a comment down below!",
+    "when": []
+   },
+   {
+    "id": "catch5",
+    "text": "Thanks for watching, see you next time!",
+    "when": []
+   }
+  ],
+  "hs_start": [
+   {
+    "id": "hs_start",
+    "text": "Okay! Count to twenty and no peeking. I'm going to hide!",
+    "when": []
+   }
+  ],
+  "hs_giggle": [
+   {
+    "id": "hs_giggle",
+    "text": "Hehe... you'll never find me!",
+    "when": []
+   }
+  ],
+  "hs_psst": [
+   {
+    "id": "hs_psst",
+    "text": "Psst! Over here! ...No, not here! Don't look here!",
+    "when": []
+   }
+  ],
+  "hs_found": [
+   {
+    "id": "hs_found",
+    "text": "You found me! You're so good at this!",
+    "when": []
+   }
+  ],
+  "hs_timeout": [
+   {
+    "id": "hs_timeout",
+    "text": "Ha! You couldn't find me. I win!",
+    "when": []
+   }
+  ],
+  "tag_start": [
+   {
+    "id": "tag_start",
+    "text": "Okay, try to catch me! Three tags and you win!",
+    "when": []
+   }
+  ],
+  "tag_tagged": [
+   {
+    "id": "tag_tagged",
+    "text": "Tagged me! Okay, again, catch me!",
+    "when": []
+   }
+  ],
+  "tag_end": [
+   {
+    "id": "tag_end",
+    "text": "That was fun! Good game!",
+    "when": []
+   }
+  ],
+  "simon_start": [
+   {
+    "id": "simon_start",
+    "text": "Let's play Simon Says! Only do it if Simon says!",
+    "when": []
+   }
+  ],
+  "sim_jump": [
+   {
+    "id": "sim_jump",
+    "text": "Simon says jump!",
+    "when": []
+   }
+  ],
+  "sim_crouch": [
+   {
+    "id": "sim_crouch",
+    "text": "Simon says crouch!",
+    "when": []
+   }
+  ],
+  "sim_sprint": [
+   {
+    "id": "sim_sprint",
+    "text": "Simon says sprint!",
+    "when": []
+   }
+  ],
+  "sim_look": [
+   {
+    "id": "sim_look",
+    "text": "Simon says look up!",
+    "when": []
+   }
+  ],
+  "trap_jump": [
+   {
+    "id": "trap_jump",
+    "text": "Jump!",
+    "when": []
+   }
+  ],
+  "trap_crouch": [
+   {
+    "id": "trap_crouch",
+    "text": "Crouch!",
+    "when": []
+   }
+  ],
+  "trap_sprint": [
+   {
+    "id": "trap_sprint",
+    "text": "Sprint!",
+    "when": []
+   }
+  ],
+  "trap_look": [
+   {
+    "id": "trap_look",
+    "text": "Look up!",
+    "when": []
+   }
+  ],
+  "sim_good": [
+   {
+    "id": "sim_good",
+    "text": "Nice moves!",
+    "when": []
+   }
+  ],
+  "sim_bad": [
+   {
+    "id": "sim_bad",
+    "text": "Gotcha! Simon didn't say!",
+    "when": []
+   }
+  ],
+  "sim_miss": [
+   {
+    "id": "sim_miss",
+    "text": "Too slow!",
+    "when": []
+   }
+  ],
+  "sim_win": [
+   {
+    "id": "sim_win",
+    "text": "You win! You're the Simon Says champion!",
+    "when": []
+   }
+  ],
+  "sim_lose": [
+   {
+    "id": "sim_lose",
+    "text": "I win this time! Try again!",
+    "when": []
+   }
+  ],
+  "rps_start": [
+   {
+    "id": "rps_start",
+    "text": "Rock, paper, scissors, shoot!",
+    "when": []
+   }
+  ],
+  "rps_win": [
+   {
+    "id": "rps_win",
+    "text": "Ha! I win!",
+    "when": []
+   }
+  ],
+  "rps_lose": [
+   {
+    "id": "rps_lose",
+    "text": "Aww, you got me!",
+    "when": []
+   }
+  ],
+  "rps_tie": [
+   {
+    "id": "rps_tie",
+    "text": "A tie! Go again!",
+    "when": []
+   }
   ]
  },
  "mikey": {
@@ -735,6 +949,220 @@ export const LINES = {
    {
     "id": "n_flo2",
     "text": "Pretty flowers. I'm gonna pick one for JJ.",
+    "when": []
+   }
+  ],
+  "catch": [
+   {
+    "id": "catch0",
+    "text": "Like and subscribe, okay? Please?",
+    "when": []
+   },
+   {
+    "id": "catch1",
+    "text": "Don't forget to hit the bell!",
+    "when": []
+   },
+   {
+    "id": "catch2",
+    "text": "Comment your favorite snack below!",
+    "when": []
+   },
+   {
+    "id": "catch3",
+    "text": "Welcome back, guys!",
+    "when": []
+   },
+   {
+    "id": "catch4",
+    "text": "Smash the like button for me!",
+    "when": []
+   },
+   {
+    "id": "catch5",
+    "text": "Subscribe, or JJ eats all your cookies.",
+    "when": []
+   }
+  ],
+  "hs_start": [
+   {
+    "id": "hs_start",
+    "text": "Count to twenty! And no peeking, I mean it!",
+    "when": []
+   }
+  ],
+  "hs_giggle": [
+   {
+    "id": "hs_giggle",
+    "text": "Shh... I'm hiding. Hehe.",
+    "when": []
+   }
+  ],
+  "hs_psst": [
+   {
+    "id": "hs_psst",
+    "text": "Psst... I can see you. You're getting close.",
+    "when": []
+   }
+  ],
+  "hs_found": [
+   {
+    "id": "hs_found",
+    "text": "Aww, you found me already?!",
+    "when": []
+   }
+  ],
+  "hs_timeout": [
+   {
+    "id": "hs_timeout",
+    "text": "I win! I was hiding so well.",
+    "when": []
+   }
+  ],
+  "tag_start": [
+   {
+    "id": "tag_start",
+    "text": "You can't catch me! Nobody can catch me!",
+    "when": []
+   }
+  ],
+  "tag_tagged": [
+   {
+    "id": "tag_tagged",
+    "text": "Hey! Okay, okay, run again!",
+    "when": []
+   }
+  ],
+  "tag_end": [
+   {
+    "id": "tag_end",
+    "text": "Phew, I need a snack break. Good game!",
+    "when": []
+   }
+  ],
+  "simon_start": [
+   {
+    "id": "simon_start",
+    "text": "Simon says... we play Simon Says!",
+    "when": []
+   }
+  ],
+  "sim_jump": [
+   {
+    "id": "sim_jump",
+    "text": "Simon says jump!",
+    "when": []
+   }
+  ],
+  "sim_crouch": [
+   {
+    "id": "sim_crouch",
+    "text": "Simon says crouch!",
+    "when": []
+   }
+  ],
+  "sim_sprint": [
+   {
+    "id": "sim_sprint",
+    "text": "Simon says sprint!",
+    "when": []
+   }
+  ],
+  "sim_look": [
+   {
+    "id": "sim_look",
+    "text": "Simon says look up!",
+    "when": []
+   }
+  ],
+  "trap_jump": [
+   {
+    "id": "trap_jump",
+    "text": "Jump!",
+    "when": []
+   }
+  ],
+  "trap_crouch": [
+   {
+    "id": "trap_crouch",
+    "text": "Crouch!",
+    "when": []
+   }
+  ],
+  "trap_sprint": [
+   {
+    "id": "trap_sprint",
+    "text": "Sprint!",
+    "when": []
+   }
+  ],
+  "trap_look": [
+   {
+    "id": "trap_look",
+    "text": "Look up!",
+    "when": []
+   }
+  ],
+  "sim_good": [
+   {
+    "id": "sim_good",
+    "text": "Oh, you're good!",
+    "when": []
+   }
+  ],
+  "sim_bad": [
+   {
+    "id": "sim_bad",
+    "text": "Ha! Simon didn't say that!",
+    "when": []
+   }
+  ],
+  "sim_miss": [
+   {
+    "id": "sim_miss",
+    "text": "Hurry up, hurry up!",
+    "when": []
+   }
+  ],
+  "sim_win": [
+   {
+    "id": "sim_win",
+    "text": "You win! How do you do that?",
+    "when": []
+   }
+  ],
+  "sim_lose": [
+   {
+    "id": "sim_lose",
+    "text": "I win! Don't be sad.",
+    "when": []
+   }
+  ],
+  "rps_start": [
+   {
+    "id": "rps_start",
+    "text": "Rock, paper, scissors, shoot!",
+    "when": []
+   }
+  ],
+  "rps_win": [
+   {
+    "id": "rps_win",
+    "text": "Yes! I got you!",
+    "when": []
+   }
+  ],
+  "rps_lose": [
+   {
+    "id": "rps_lose",
+    "text": "No way! You win.",
+    "when": []
+   }
+  ],
+  "rps_tie": [
+   {
+    "id": "rps_tie",
+    "text": "Same thing! Again!",
     "when": []
    }
   ]

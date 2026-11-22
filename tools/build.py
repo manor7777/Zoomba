@@ -50,7 +50,10 @@ for key, c in LINES.items():
                   {"test": "is_family", "subject": "other", "operator": "!=", "value": "creeper"}]}}]},
           "minecraft:behavior.melee_attack": {"priority": 3, "speed_multiplier": 1.2, "track_target": True}
         },
-        "stay": {"minecraft:movement": {"value": 0.0}}
+        "stay": {"minecraft:movement": {"value": 0.0}},
+        "flee": {"minecraft:behavior.avoid_mob_type": {"priority": 0, "remove_target": False, "entity_types": [
+            {"filters": {"test": "is_family", "subject": "other", "value": "player"}, "max_dist": 12,
+             "walk_speed_multiplier": 1.3, "sprint_speed_multiplier": 1.7}]}}
       },
       "components": {
         "minecraft:type_family": {"family": ["jj_mikey", "friend"]},
@@ -82,6 +85,8 @@ for key, c in LINES.items():
                                 "playsound jjmikey.%s.%s @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1" % (key, c["tamed"][0][0])]}},
         "jjmikey:stay": {"add": {"component_groups": ["stay"]}},
         "jjmikey:sit": {"add": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": True}},
+        "jjmikey:flee_on": {"add": {"component_groups": ["flee"]}},
+        "jjmikey:flee_off": {"remove": {"component_groups": ["flee"]}},
         "jjmikey:go": {"remove": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": False}}
       }}}
     w(f"{BP}/entities/{key}.json", bp)
