@@ -1,0 +1,42 @@
+{
+  "format_version": "1.21.100",
+  "minecraft:jigsaw": {
+    "description": {
+      "identifier": "jjmikey:house"
+    },
+    "biome_filters": [
+      {
+        "any_of": [
+          {
+            "test": "has_biome_tag",
+            "value": "plains"
+          },
+          {
+            "test": "has_biome_tag",
+            "value": "forest"
+          },
+          {
+            "test": "has_biome_tag",
+            "value": "taiga"
+          },
+          {
+            "test": "has_biome_tag",
+            "value": "savanna"
+          }
+        ]
+      }
+    ],
+    "step": "surface_structures",
+    "terrain_adaptation": "beard_thin",
+    "start_pool": "jjmikey:house_pool",
+    "max_depth": 1,
+    "start_height": {
+      "type": "constant",
+      "value": {
+        "absolute": -3
+      }
+    },
+    "heightmap_projection": "world_surface",
+    "dimension_padding": 10
+  }
+}

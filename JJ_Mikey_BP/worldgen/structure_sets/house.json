@@ -1,0 +1,21 @@
+{
+  "format_version": "1.21.100",
+  "minecraft:structure_set": {
+    "description": {
+      "identifier": "jjmikey:house"
+    },
+    "placement": {
+      "type": "minecraft:random_spread",
+      "salt": 20260611,
+      "separation": 24,
+      "spacing": 48,
+      "spread_type": "linear"
+    },
+    "structures": [
+      {
+        "structure": "jjmikey:house",
+        "weight": 1
+      }
+    ]
+  }
+}

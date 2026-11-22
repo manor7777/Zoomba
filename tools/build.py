@@ -11,11 +11,11 @@ def w(path, data):
         json.dump(data, f, indent=2) if not isinstance(data, str) else f.write(data)
 
 w(f"{BP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Behavior)", "description": "Interactive JJ and Mikey buddies", "uuid": BP_U, "version": [1,0,0], "min_engine_version": [1,21,0]},
+  "header": {"name": "JJ & Mikey Friends (Behavior)", "description": "Interactive JJ and Mikey buddies", "uuid": BP_U, "version": [1,0,0], "min_engine_version": [1,21,100]},
   "modules": [{"type": "data", "uuid": BP_M, "version": [1,0,0]}],
   "dependencies": [{"uuid": RP_U, "version": [1,0,0]}]})
 w(f"{RP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Skins)", "description": "Skins for JJ and Mikey", "uuid": RP_U, "version": [1,0,0], "min_engine_version": [1,21,0]},
+  "header": {"name": "JJ & Mikey Friends (Skins)", "description": "Skins for JJ and Mikey", "uuid": RP_U, "version": [1,0,0], "min_engine_version": [1,21,100]},
   "modules": [{"type": "resources", "uuid": RP_M, "version": [1,0,0]}]})
 
 def say(who, color, msg, key=None, r=8):
