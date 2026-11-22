@@ -1,0 +1,67 @@
+{
+  "format_version": "1.14.0",
+  "sound_definitions": {
+    "jjmikey.jj.talk": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/talk1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/jj/talk2",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/jj/talk3",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/jj/talk4",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/jj/talk5",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/jj/talk6",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.talk": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/talk1",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/mikey/talk2",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/mikey/talk3",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/mikey/talk4",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/mikey/talk5",
+          "volume": 1.0
+        },
+        {
+          "name": "sounds/mikey/talk6",
+          "volume": 1.0
+        }
+      ]
+    }
+  }
+}

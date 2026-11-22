@@ -66,6 +66,18 @@
         "is_pushable_by_piston": true
       },
       "minecraft:nameable": {},
+      "minecraft:timer": {
+        "looping": true,
+        "randomInterval": true,
+        "time": [
+          45,
+          120
+        ],
+        "time_down_event": {
+          "event": "mikey:idle",
+          "target": "self"
+        }
+      },
       "minecraft:persistent": {},
       "minecraft:fall_damage": {
         "value": 1.0
@@ -143,7 +155,8 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: JJ, don't leave me!\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: JJ, don't leave me!\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           },
@@ -151,7 +164,8 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: I made a snack, want some?\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I made a snack, want some?\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           },
@@ -159,7 +173,8 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: Look at this cool thing I found!\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Look at this cool thing I found!\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           },
@@ -167,7 +182,8 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: I'm not scared... okay, maybe a little.\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I'm not scared... okay, maybe a little.\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           },
@@ -175,7 +191,8 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: Wanna play hide and seek?\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Wanna play hide and seek?\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           },
@@ -183,7 +200,48 @@
             "weight": 1,
             "queue_command": {
               "command": [
-                "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: Here, take this gold!\"}]}"
+                "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Here, take this gold!\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
+              ]
+            }
+          }
+        ]
+      },
+      "mikey:idle": {
+        "randomize": [
+          {
+            "weight": 1,
+            "queue_command": {
+              "command": [
+                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Is it snack time yet?\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
+              ]
+            }
+          },
+          {
+            "weight": 1,
+            "queue_command": {
+              "command": [
+                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: JJ? JJ, are you there?\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
+              ]
+            }
+          },
+          {
+            "weight": 1,
+            "queue_command": {
+              "command": [
+                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: I think I heard something...\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
+              ]
+            }
+          },
+          {
+            "weight": 1,
+            "queue_command": {
+              "command": [
+                "tellraw @a[r=10] {\"rawtext\":[{\"text\":\"\u00a7eMikey: La la la la.\"}]}",
+                "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
               ]
             }
           }
@@ -197,7 +255,8 @@
         },
         "queue_command": {
           "command": [
-            "tellraw @p {\"rawtext\":[{\"text\":\"\u00a7eMikey: Okay okay, I'm following you! Don't go too far!\"}]}"
+            "tellraw @a[r=8] {\"rawtext\":[{\"text\":\"\u00a7eMikey: Okay okay, I'm following you! Don't go too far!\"}]}",
+            "playsound jjmikey.mikey.talk @a[r=16] ~ ~ ~ 1 1"
           ]
         }
       }
