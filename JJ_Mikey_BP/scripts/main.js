@@ -1,6 +1,6 @@
 // JJ & Mikey buddies: tap-to-talk menu, context-aware chatter, gifts, stay/follow, punching.
-import { world, system, ItemStack } from "@minecraft/server";
-import { ActionFormData } from "@minecraft/server-ui";
+import { world, system, ItemStack, BlockVolume } from "@minecraft/server";
+import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
 import { LINES } from "./lines.js";
 
 const TYPES = { "jjmikey:jj": "jj", "jjmikey:mikey": "mikey" };
@@ -90,7 +90,11 @@ function speak(entity, category, player) {
   if (!alive(entity)) return;
   if (category === "talk" && Math.random() < 0.18) category = "catch";
   const c = LINES[TYPES[entity.typeId]];
-  const line = chooseLine(entity, player, category);
+  speakLine(entity, chooseLine(entity, player, category), player);
+}
+function speakLine(entity, line, player) {
+  if (!alive(entity)) return;
+  const c = LINES[TYPES[entity.typeId]];
   const msg = `${c.color}${c.name}§r: ${line.text}`;
   try {
     for (const p of entity.dimension.getPlayers({ location: entity.location, maxDistance: 12 })) p.sendMessage(msg);
@@ -134,6 +138,8 @@ async function showMenu(player, buddy, tries = 0) {
   form.body(tamed ? `${c.name} is your buddy!` : `Feed ${c.name} a cookie or a golden apple to make friends.`);
   const add = (label, fn) => { form.button(label); buttons.push(fn); };
   add("Chat", () => speak(buddy, "talk", player));
+  add(`Talk to ${c.name} (type)`, () => talkForm(player, buddy));
+  add("Find something...", () => findMenu(player, buddy));
   add("Ask for a gift", () => gift(buddy, player));
   if (mode === "follow") {
     add("Stay here (standing)", () => setMode(buddy, player, "stay"));
@@ -327,6 +333,7 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
   if (!ev.id.startsWith("buddy:")) return;
   const cmd = ev.id.slice(6);
   if (cmd === "hint") { giveHint(ev.sourceEntity); return; }
+  if (cmd === "say") { respondTo(ev.sourceEntity, ev.message, false); return; }
   const mode = cmd === "sit" ? "sit" : cmd === "stay" ? "stay" : cmd === "follow" || cmd === "wander" ? "follow" : null;
   const player = ev.sourceEntity;
   if (!mode || !player || !player.dimension) return;
@@ -375,7 +382,7 @@ function endGame(buddy, player, manual = false) {
   if (g.interval !== undefined) { try { system.clearRun(g.interval); } catch { } }
   try {
     if (g.type === "tag") buddy.triggerEvent("jjmikey:flee_off");
-    if (g.type === "hide") applyMode(buddy, "follow");
+    if (g.type === "hide" || g.type === "simon" || g.type === "find") applyMode(buddy, "follow");
   } catch { }
   if (manual) { try { player.sendMessage("§7Game stopped."); } catch { } }
 }
@@ -505,6 +512,7 @@ const SIMON = { jump: "JUMP", crouch: "CROUCH (sneak)", sprint: "SPRINT", look: 
 function startSimon(buddy, player) {
   const g = { type: "simon", round: 0, score: 0, rounds: 6 };
   games.set(buddy.id, g);
+  applyMode(buddy, "stay");
   speak(buddy, "simon_start", player);
   later(buddy, g, 20 * 4, () => simonRound(buddy, player, g));
 }
@@ -521,6 +529,7 @@ function simonRound(buddy, player, g) {
   g.round++;
   const simon = Math.random() < 0.65, act = pick(Object.keys(SIMON));
   speak(buddy, (simon ? "sim_" : "trap_") + act, player);
+  if (simon) buddyDo(buddy, player, act);
   actionBar(player, (simon ? "Simon says: " : "") + SIMON[act]);
   let acted = false, ticks = 0;
   const iv = system.runInterval(() => {
@@ -558,3 +567,313 @@ async function rpsMenu(player, buddy) {
     else { speak(buddy, "rps_lose", player); gift(buddy, player, true); }
   }, 30);
 }
+
+// =====================================================================
+// SIMON SAYS: the buddy does the action too
+// =====================================================================
+function buddyDo(buddy, player, act) {
+  try { buddy.teleport(buddy.location, { facingLocation: player.location }); } catch { }
+  try {
+    if (act === "jump") {
+      buddy.applyImpulse({ x: 0, y: 0.55, z: 0 });
+    } else if (act === "crouch") {
+      buddy.triggerEvent("jjmikey:crouch_on");
+      system.runTimeout(() => { try { buddy.triggerEvent("jjmikey:crouch_off"); } catch { } }, 50);
+    } else if (act === "sprint") {
+      let n = 0;
+      const iv = system.runInterval(() => {
+        if (!alive(buddy) || ++n > 14) { system.clearRun(iv); return; }
+        const d = buddy.getViewDirection();
+        buddy.applyImpulse({ x: d.x * 0.16, y: 0, z: d.z * 0.16 });
+      }, 2);
+    } else if (act === "look") {
+      const r = buddy.getRotation();
+      buddy.setRotation({ x: -70, y: r.y });
+      system.runTimeout(() => { try { buddy.setRotation({ x: 0, y: buddy.getRotation().y }); } catch { } }, 50);
+    }
+  } catch { }
+}
+
+// =====================================================================
+// FIND SOMETHING: the buddy searches the loaded world, then leads you there in hops
+// =====================================================================
+const FIND = {
+  diamond: { label: "Diamonds", types: ["minecraft:diamond_ore", "minecraft:deepslate_diamond_ore"] },
+  iron: { label: "Iron", types: ["minecraft:iron_ore", "minecraft:deepslate_iron_ore"] },
+  gold: { label: "Gold", types: ["minecraft:gold_ore", "minecraft:deepslate_gold_ore", "minecraft:nether_gold_ore"] },
+  coal: { label: "Coal", types: ["minecraft:coal_ore", "minecraft:deepslate_coal_ore"] },
+  emerald: { label: "Emeralds", types: ["minecraft:emerald_ore", "minecraft:deepslate_emerald_ore"] },
+  lapis: { label: "Lapis", types: ["minecraft:lapis_ore", "minecraft:deepslate_lapis_ore"] },
+  redstone: { label: "Redstone", types: ["minecraft:redstone_ore", "minecraft:deepslate_redstone_ore", "minecraft:lit_redstone_ore"] },
+  copper: { label: "Copper", types: ["minecraft:copper_ore", "minecraft:deepslate_copper_ore"] },
+  debris: { label: "Ancient debris", types: ["minecraft:ancient_debris"] },
+  chest: { label: "A chest", types: ["minecraft:chest", "minecraft:trapped_chest"] },
+  village: { label: "A village", types: ["minecraft:bell"] },
+};
+const FIND_WORDS = [["diamond", "diamond"], ["iron", "iron"], ["gold", "gold"], ["coal", "coal"], ["emerald", "emerald"], ["lapis", "lapis"],
+  ["redstone", "redstone"], ["copper", "copper"], ["debris", "debris|netherite"], ["chest", "chest|treasure|loot"], ["village", "village|villager|bell|town"]];
+function findKey(t) {
+  for (const [k, w] of FIND_WORDS) if (new RegExp("\\b(" + w + ")").test(t)) return k;
+  return null;
+}
+
+const dist2 = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
+function compass(a, b) {
+  const ang = (Math.atan2(b.z - a.z, b.x - a.x) * 180) / Math.PI;
+  return ["east", "southeast", "south", "southwest", "west", "northwest", "north", "northeast"][Math.round(((ang + 360) % 360) / 45) % 8];
+}
+
+function standAt(dim, bx, bz, refY) {
+  const bad = /lava|cactus|magma|fire|leaves|water|ice/;
+  const good = (b, u1, u2) => b && u1 && u2 && !b.isAir && !b.isLiquid && u1.isAir && u2.isAir && !bad.test(b.typeId);
+  for (let by = Math.floor(refY) + 8; by >= Math.floor(refY) - 12; by--) {
+    try {
+      const b = dim.getBlock({ x: bx, y: by, z: bz }), u1 = dim.getBlock({ x: bx, y: by + 1, z: bz }), u2 = dim.getBlock({ x: bx, y: by + 2, z: bz });
+      if (good(b, u1, u2)) return { x: bx + 0.5, y: by + 1, z: bz + 0.5 };
+    } catch { return null; }
+  }
+  try {
+    const top = dim.getTopmostBlock({ x: bx, z: bz });
+    if (top) {
+      const y = top.location.y;
+      const u1 = dim.getBlock({ x: bx, y: y + 1, z: bz }), u2 = dim.getBlock({ x: bx, y: y + 2, z: bz });
+      if (good(top, u1, u2)) return { x: bx + 0.5, y: y + 1, z: bz + 0.5 };
+    }
+  } catch { }
+  return null;
+}
+
+function searchChunk(dim, c, minY, maxY, types, from) {
+  try {
+    const vol = new BlockVolume({ x: c.cx * 16, y: minY, z: c.cz * 16 }, { x: c.cx * 16 + 15, y: maxY, z: c.cz * 16 + 15 });
+    const res = dim.getBlocks(vol, { includeTypes: types }, true);
+    let best = null, bd = Infinity;
+    for (const loc of res.getBlockLocationIterator()) {
+      const d = Math.hypot(loc.x - from.x, loc.y - from.y, loc.z - from.z);
+      if (d < bd) { bd = d; best = loc; }
+    }
+    return best;
+  } catch { return null; }
+}
+
+function nearestVillager(dim, from) {
+  try {
+    const list = dim.getEntities({ type: "minecraft:villager_v2" });
+    let best = null, bd = Infinity;
+    for (const v of list) { const d = dist(v.location, from); if (d < bd) { bd = d; best = v.location; } }
+    return best;
+  } catch { return null; }
+}
+
+function puff(entity) { try { entity.runCommand("particle minecraft:villager_happy ~ ~1 ~"); } catch { } }
+
+function hop(buddy, g, step, from) {
+  const o = from ?? buddy.location, t = g.target;
+  const dx = t.x - o.x, dz = t.z - o.z, d = Math.hypot(dx, dz) || 1;
+  for (const sz of [step, step * 0.7, step * 0.45, 3]) {
+    const L = Math.min(Math.max(sz, 2), d);
+    const spot = standAt(buddy.dimension, Math.floor(o.x + (dx / d) * L), Math.floor(o.z + (dz / d) * L), o.y);
+    if (spot) {
+      try { buddy.teleport(spot, { facingLocation: { x: t.x, y: spot.y + 1.5, z: t.z } }); } catch { return false; }
+      puff(buddy);
+      return true;
+    }
+  }
+  return false;
+}
+
+function beginLead(buddy, player, g, t) {
+  const f = FIND[g.key];
+  g.phase = "lead"; g.target = t; g.lastProgress = system.currentTick;
+  player.sendMessage(`§aFound ${f.label.toLowerCase()} about ${Math.floor(dist2(t, player.location))} blocks away (${compass(player.location, t)}). Follow ${LINES[TYPES[buddy.typeId]].name}!`);
+  hop(buddy, g, 4, player.location);
+}
+
+function arrive(buddy, player, g) {
+  const t = g.target, f = FIND[g.key];
+  const spot = standAt(buddy.dimension, Math.floor(t.x), Math.floor(t.z), t.y);
+  if (spot) { try { buddy.teleport(spot, { facingLocation: t }); } catch { } }
+  const dy = Math.round(t.y - (spot ? spot.y : buddy.location.y));
+  const where = dy < -3 ? `about ${-dy} blocks below us. Dig down!` : dy > 3 ? `about ${dy} blocks above us.` : "right around here.";
+  player.sendMessage(`§a${f.label} at ${Math.floor(t.x)}, ${Math.floor(t.y)}, ${Math.floor(t.z)}: ${where}`);
+  try { buddy.dimension.runCommand(`particle minecraft:totem_particle ${t.x + 0.5} ${t.y + 1} ${t.z + 0.5}`); } catch { }
+  heart(buddy);
+  speak(buddy, "find_arrive", player);
+  endGame(buddy, player);
+}
+
+function leadTick(buddy, player, g) {
+  const now = system.currentTick, t = g.target, f = FIND[g.key];
+  const remain = dist2(buddy.location, t), pd = dist(buddy.location, player.location);
+  if (now - g.lastBar > 20) { g.lastBar = now; actionBar(player, `${f.label}: ${Math.floor(dist2(player.location, t))} blocks ${compass(player.location, t)}`); }
+  if (remain <= 4) { arrive(buddy, player, g); return; }
+  if (pd <= 7 && now - g.lastHop > 30) {
+    g.lastHop = now;
+    if (hop(buddy, g, Math.min(14, Math.max(3, remain - 2)))) {
+      g.hops++; g.lastProgress = now; g.fails = 0;
+      if (g.hops % 3 === 1) speak(buddy, "find_hop", player);
+    } else if (++g.fails >= 3) {
+      speak(buddy, "find_stuck", player);
+      player.sendMessage(`§7Head ${compass(buddy.location, t)} for about ${Math.floor(remain)} blocks.`);
+      endGame(buddy, player);
+    }
+  } else if (pd > 7 && now - g.lastCall > 20 * 10) {
+    g.lastCall = now; speak(buddy, "find_hop", player);
+  }
+  if (now - g.lastProgress > 20 * 120) { speak(buddy, "find_cancel", player); endGame(buddy, player); }
+}
+
+function startFind(buddy, player, key) {
+  if (!alive(buddy) || !alive(player)) return;
+  if (games.has(buddy.id)) endGame(buddy, player);
+  const f = FIND[key];
+  const g = { type: "find", key, buddy, player, phase: "search", target: null, hops: 0, fails: 0, lastHop: 0, lastCall: 0, lastBar: 0, ticks: 0, lastProgress: system.currentTick };
+  games.set(buddy.id, g);
+  applyMode(buddy, "stay");
+  speak(buddy, "find_start", player);
+  player.sendMessage(`§7Searching for ${f.label.toLowerCase()}...`);
+  const dim = player.dimension, p = player.location;
+  let minY = Math.floor(p.y) - 64, maxY = Math.floor(p.y) + 64;
+  try { minY = Math.max(dim.heightRange.min, minY); maxY = Math.min(dim.heightRange.max - 1, maxY); } catch { }
+  const cx0 = Math.floor(p.x / 16), cz0 = Math.floor(p.z / 16), R = 8, chunks = [];
+  for (let dx = -R; dx <= R; dx++) for (let dz = -R; dz <= R; dz++) chunks.push({ cx: cx0 + dx, cz: cz0 + dz, d: dx * dx + dz * dz });
+  chunks.sort((a, b) => a.d - b.d);
+  let i = 0;
+  g.interval = system.runInterval(() => {
+    if (games.get(buddy.id) !== g) { try { system.clearRun(g.interval); } catch { } return; }
+    if (!alive(buddy) || !alive(player)) { endGame(buddy, player); return; }
+    if (g.phase === "search") {
+      for (let n = 0; n < 6 && i < chunks.length && g.phase === "search"; n++, i++) {
+        const t = searchChunk(dim, chunks[i], minY, maxY, f.types, p);
+        if (t) beginLead(buddy, player, g, t);
+      }
+      if (g.phase === "search" && i >= chunks.length) {
+        const t = key === "village" ? nearestVillager(dim, p) : null;
+        if (t) beginLead(buddy, player, g, t);
+        else { speak(buddy, "find_none", player); endGame(buddy, player); }
+      }
+      return;
+    }
+    if (++g.ticks % 3 === 0) leadTick(buddy, player, g);
+  }, 4);
+}
+
+async function findMenu(player, buddy) {
+  if (!alive(buddy)) return;
+  const c = LINES[TYPES[buddy.typeId]];
+  const keys = Object.keys(FIND);
+  const form = new ActionFormData().title(`${c.color}${c.name}: find`).body("What should we look for? (Only works in loaded areas near you.)");
+  for (const k of keys) form.button(FIND[k].label);
+  form.button("Back");
+  let res;
+  try { res = await form.show(player); } catch { return; }
+  if (res.canceled) return;
+  if (res.selection < keys.length) startFind(buddy, player, keys[res.selection]); else showMenu(player, buddy);
+}
+
+// =====================================================================
+// TALKING: type to them and get a contextual reply
+// =====================================================================
+function nearbyBuddies(player, r = 24) {
+  const out = [];
+  for (const type of Object.keys(TYPES)) {
+    try { for (const b of player.dimension.getEntities({ type, location: player.location, maxDistance: r })) out.push(b); } catch { }
+  }
+  out.sort((a, b) => dist(a.location, player.location) - dist(b.location, player.location));
+  return out;
+}
+
+function respondTo(player, raw, native) {
+  if (!player || !raw) return;
+  const list = nearbyBuddies(player);
+  if (list.length === 0) { try { player.sendMessage("§7No JJ or Mikey close enough to hear you."); } catch { } return; }
+  let text = String(raw).toLowerCase().trim();
+  let buddy = list[0];
+  const named = /\bjj\b/.test(text) ? "jjmikey:jj" : /\bmikey\b/.test(text) ? "jjmikey:mikey" : null;
+  if (named) { const m = list.find((b) => b.typeId === named); if (m) buddy = m; }
+  if (native && !named && dist(buddy.location, player.location) > 8) return; // don't answer ordinary chat from afar
+  text = text.replace(/\b(jj|mikey)\b[,:!]?/g, " ").replace(/\s+/g, " ").trim();
+  if (!native) { try { player.sendMessage(`§7You: ${raw}`); } catch { } }
+  system.runTimeout(() => { if (alive(buddy) && alive(player)) reply(buddy, player, text); }, 12);
+}
+
+function speakContext(buddy, player) {
+  const c = LINES[TYPES[buddy.typeId]];
+  const ctx = context(buddy, player);
+  const ok = c.talk.filter((l) => l.when && l.when.length > 0 && l.when.every((t) => ctx.has(t)));
+  if (ok.length > 0) speakLine(buddy, pick(ok), player); else speak(buddy, "chat_see_none", player);
+}
+
+function reply(buddy, player, t) {
+  const has = (re) => re.test(t);
+  const tamed = buddy.hasTag("jjmikey_tamed");
+  const g = games.get(buddy.id);
+  const key = findKey(t);
+  if (has(/\b(stop|cancel|never ?mind|quit)\b/)) { if (g) { speak(buddy, "find_cancel", player); endGame(buddy, player); } else speak(buddy, "chat_unknown", player); return; }
+  if (has(/where( are| r)? (you|u)\b|^where( is|'s)?$|where did you go/)) return speak(buddy, "chat_where", player);
+  if (has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/) && key) return startFind(buddy, player, key);
+  if (has(/\b(find|show me|lead me|take me|locate|search|look for)\b/)) return speak(buddy, "find_what", player);
+  if (has(/\bsit\b/)) return setMode(buddy, player, "sit");
+  if (has(/\b(stay|wait|stand|freeze)\b/)) return setMode(buddy, player, "stay");
+  if (has(/\b(follow|come|with me|let'?s go|walk with)\b/)) return setMode(buddy, player, "follow");
+  if (has(/\b(punch|attack|hit|smash|fight)\b/)) return tamed ? punch(buddy, player) : speak(buddy, "chat_tame_no", player);
+  if (has(/\b(gift|give me|present|reward)\b/)) return gift(buddy, player);
+  if (has(/hide( and|n)? ?seek|\bhide\b/)) return startHide(buddy, player);
+  if (has(/simon/)) return startSimon(buddy, player);
+  if (has(/rock.?paper|\brps\b/)) return rpsMenu(player, buddy);
+  if (has(/\btag\b/)) return tamed ? startTag(buddy, player) : speak(buddy, "chat_tame_no", player);
+  if (has(/\b(game|games|play|bored)\b/)) return speak(buddy, "chat_games", player);
+  if (has(/what do you see|what'?s (around|nearby|there|here)|look around|see anything|anything (nearby|interesting)|notice/)) return speakContext(buddy, player);
+  if (has(/\btime\b|what (day|night)|is it (day|night)|morning|evening|bed ?time/)) {
+    let night = false; try { const tod = world.getTimeOfDay(); night = tod >= 13000 && tod < 23000; } catch { }
+    return speak(buddy, night ? "chat_time_night" : "chat_time_day", player);
+  }
+  if (has(/weather|rain|storm|sunny|cloud/)) {
+    let rain = false; try { rain = buddy.dimension.getWeather() !== "Clear"; } catch { }
+    return speak(buddy, rain ? "chat_weather_rain" : "chat_weather_clear", player);
+  }
+  if (has(/am i (ok|okay|hurt|dying|alive)|my health|how am i|how do i look/)) {
+    let low = false; try { const hp = player.getComponent("minecraft:health"); low = hp && hp.currentValue <= 8; } catch { }
+    return speak(buddy, low ? "chat_health_low" : "chat_health_ok", player);
+  }
+  if (has(/\b(tame|be my friend|friends?|pet)\b/)) return speak(buddy, tamed ? "chat_tame_yes" : "chat_tame_no", player);
+  if (has(/who are you|your name|what are you/)) return speak(buddy, "chat_name", player);
+  if (has(/how (are|r) (you|u)|how'?s it going|you (ok|okay|good)|what'?s up|\bsup\b/)) return speak(buddy, "chat_how", player);
+  if (has(/thank|thx|cheers/)) return speak(buddy, "chat_thanks", player);
+  if (has(/love you|you('?re| are) (the )?(best|awesome|great|cool|amazing)|good (job|boy)|well done|nice one/)) return speak(buddy, "chat_love", player);
+  if (has(/stupid|dumb|idiot|hate you|shut up|ugly|useless/)) return speak(buddy, "chat_rude", player);
+  if (has(/hungry|food|snack|cookie|\beat\b/)) return speak(buddy, "chat_food", player);
+  if (has(/joke|funny|make me laugh/)) return speak(buddy, "chat_joke", player);
+  if (has(/\bbye\b|goodbye|see you|gtg|cya|good ?night/)) return speak(buddy, "chat_bye", player);
+  if (has(/scared|afraid|spooky|creeper|monster|zombie/)) return speak(buddy, "chat_scared", player);
+  if (has(/\bhelp\b|what can you do|commands|how do i/)) return speak(buddy, "chat_help", player);
+  if (has(/subscribe|like and|youtube|channel|views|vlog/)) return speak(buddy, "catch", player);
+  if (has(/\b(hi|hello|hey|yo|howdy|hiya|heya)\b|good (morning|evening|afternoon)/)) return speak(buddy, "chat_greet", player);
+  if (t.includes("?")) return speak(buddy, "chat_unknown", player);
+  if (Math.random() < 0.5) return speakContext(buddy, player);
+  speak(buddy, "chat_unknown", player);
+}
+
+async function talkForm(player, buddy, tries = 0) {
+  if (!alive(buddy)) return;
+  const c = LINES[TYPES[buddy.typeId]];
+  const form = new ModalFormData().title(`Talk to ${c.name}`)
+    .textField("Say something (try: find me diamonds, tell me a joke, play hide and seek, how am I doing?)", "Type here...");
+  let res;
+  try { res = await form.show(player); } catch { return; }
+  if (res.canceled) {
+    if (res.cancelationReason === "UserBusy" && tries < 6) system.runTimeout(() => talkForm(player, buddy, tries + 1), 10);
+    return;
+  }
+  const text = String((res.formValues && res.formValues[0]) || "").trim();
+  if (!text) return;
+  try { player.sendMessage(`§7You: ${text}`); } catch { }
+  system.runTimeout(() => { if (alive(buddy) && alive(player)) reply(buddy, player, text.toLowerCase().replace(/\b(jj|mikey)\b[,:!]?/g, " ").replace(/\s+/g, " ").trim()); }, 12);
+}
+
+// Real in-game chat: only available if this Minecraft version exposes the (pre-release) chat event.
+try {
+  if (world.afterEvents && world.afterEvents.chatSend) {
+    world.afterEvents.chatSend.subscribe((ev) => respondTo(ev.sender, ev.message, true));
+  }
+} catch { }

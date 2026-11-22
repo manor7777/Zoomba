@@ -581,6 +581,301 @@ export const LINES = {
     "text": "A tie! Go again!",
     "when": []
    }
+  ],
+  "chat_greet": [
+   {
+    "id": "chat_greet0",
+    "text": "Hey, hey! What's up?",
+    "when": []
+   },
+   {
+    "id": "chat_greet1",
+    "text": "Hi there! Ready for an adventure?",
+    "when": []
+   },
+   {
+    "id": "chat_greet2",
+    "text": "Oh hey, it's you! Awesome!",
+    "when": []
+   }
+  ],
+  "chat_how": [
+   {
+    "id": "chat_how0",
+    "text": "I'm doing great! Even better now that you're here.",
+    "when": []
+   },
+   {
+    "id": "chat_how1",
+    "text": "Pretty good! Just hanging out and being awesome.",
+    "when": []
+   }
+  ],
+  "chat_name": [
+   {
+    "id": "chat_name0",
+    "text": "I'm JJ! Hoodie enthusiast and professional adventurer.",
+    "when": []
+   }
+  ],
+  "chat_thanks": [
+   {
+    "id": "chat_thanks0",
+    "text": "Anytime, friend!",
+    "when": []
+   },
+   {
+    "id": "chat_thanks1",
+    "text": "No problem! That's what friends are for.",
+    "when": []
+   }
+  ],
+  "chat_love": [
+   {
+    "id": "chat_love0",
+    "text": "Aww, you're making me blush!",
+    "when": []
+   },
+   {
+    "id": "chat_love1",
+    "text": "You're the best! Seriously!",
+    "when": []
+   }
+  ],
+  "chat_rude": [
+   {
+    "id": "chat_rude0",
+    "text": "Hey, that's not very nice!",
+    "when": []
+   },
+   {
+    "id": "chat_rude1",
+    "text": "Ouch. I thought we were friends.",
+    "when": []
+   }
+  ],
+  "chat_food": [
+   {
+    "id": "chat_food0",
+    "text": "Food? Now you're talking! Got any bread?",
+    "when": []
+   },
+   {
+    "id": "chat_food1",
+    "text": "I'm kind of hungry too. Let's find something to eat.",
+    "when": []
+   }
+  ],
+  "chat_joke": [
+   {
+    "id": "chat_joke0",
+    "text": "Why did the creeper cross the road? To get to the other ssside!",
+    "when": []
+   },
+   {
+    "id": "chat_joke1",
+    "text": "What do you call a skeleton who won't work? Lazy bones!",
+    "when": []
+   },
+   {
+    "id": "chat_joke2",
+    "text": "Why don't zombies like fast food? They can't catch it!",
+    "when": []
+   }
+  ],
+  "chat_bye": [
+   {
+    "id": "chat_bye0",
+    "text": "See you later! Don't go too far!",
+    "when": []
+   },
+   {
+    "id": "chat_bye1",
+    "text": "Bye! Come back soon!",
+    "when": []
+   }
+  ],
+  "chat_scared": [
+   {
+    "id": "chat_scared0",
+    "text": "Don't be scared. I'm right here with you!",
+    "when": []
+   },
+   {
+    "id": "chat_scared1",
+    "text": "If anything comes close, I'll punch it. Probably.",
+    "when": []
+   }
+  ],
+  "chat_help": [
+   {
+    "id": "chat_help0",
+    "text": "Tap me for a menu, or just tell me to sit, stay, follow, or find diamonds!",
+    "when": []
+   }
+  ],
+  "chat_time_day": [
+   {
+    "id": "chat_time_day0",
+    "text": "It's daytime! Perfect for exploring.",
+    "when": []
+   }
+  ],
+  "chat_time_night": [
+   {
+    "id": "chat_time_night0",
+    "text": "It's night. Monsters come out, so stay close to me!",
+    "when": []
+   }
+  ],
+  "chat_weather_rain": [
+   {
+    "id": "chat_weather_rain0",
+    "text": "It's raining. Good thing I have my hoodie!",
+    "when": []
+   }
+  ],
+  "chat_weather_clear": [
+   {
+    "id": "chat_weather_clear0",
+    "text": "The weather's great. Not a cloud in the sky!",
+    "when": []
+   }
+  ],
+  "chat_see_none": [
+   {
+    "id": "chat_see_none0",
+    "text": "Hmm, nothing special around here right now.",
+    "when": []
+   }
+  ],
+  "chat_health_low": [
+   {
+    "id": "chat_health_low0",
+    "text": "You look hurt! Eat something, quick!",
+    "when": []
+   }
+  ],
+  "chat_health_ok": [
+   {
+    "id": "chat_health_ok0",
+    "text": "You look great! Healthy and ready to go.",
+    "when": []
+   }
+  ],
+  "chat_where": [
+   {
+    "id": "chat_where0",
+    "text": "I'm right here, silly!",
+    "when": []
+   }
+  ],
+  "chat_tame_no": [
+   {
+    "id": "chat_tame_no0",
+    "text": "Give me a cookie or a golden apple and we'll be best friends!",
+    "when": []
+   }
+  ],
+  "chat_tame_yes": [
+   {
+    "id": "chat_tame_yes0",
+    "text": "We're already best friends, remember?",
+    "when": []
+   }
+  ],
+  "chat_games": [
+   {
+    "id": "chat_games0",
+    "text": "Wanna play? Hide and seek, Simon Says, tag, or rock paper scissors!",
+    "when": []
+   }
+  ],
+  "chat_unknown": [
+   {
+    "id": "chat_unknown0",
+    "text": "Hmm, I'm not sure about that one.",
+    "when": []
+   },
+   {
+    "id": "chat_unknown1",
+    "text": "Ooh, good question. No idea!",
+    "when": []
+   },
+   {
+    "id": "chat_unknown2",
+    "text": "I don't really get that, but sure!",
+    "when": []
+   }
+  ],
+  "find_what": [
+   {
+    "id": "find_what0",
+    "text": "Find what? I can look for diamonds, iron, gold, chests, or a village!",
+    "when": []
+   }
+  ],
+  "find_start": [
+   {
+    "id": "find_start0",
+    "text": "Okay, follow me! I know just where to look.",
+    "when": []
+   },
+   {
+    "id": "find_start1",
+    "text": "Let's go find it! Stay close!",
+    "when": []
+   }
+  ],
+  "find_none": [
+   {
+    "id": "find_none0",
+    "text": "I can't see any around here. Let's explore a bit and ask me again!",
+    "when": []
+   }
+  ],
+  "find_hop": [
+   {
+    "id": "find_hop0",
+    "text": "This way!",
+    "when": []
+   },
+   {
+    "id": "find_hop1",
+    "text": "Keep up!",
+    "when": []
+   },
+   {
+    "id": "find_hop2",
+    "text": "Almost there!",
+    "when": []
+   },
+   {
+    "id": "find_hop3",
+    "text": "Come on, over here!",
+    "when": []
+   }
+  ],
+  "find_arrive": [
+   {
+    "id": "find_arrive0",
+    "text": "Here we are! Look around, it should be close!",
+    "when": []
+   }
+  ],
+  "find_stuck": [
+   {
+    "id": "find_stuck0",
+    "text": "I'm stuck. Let's head that way on foot!",
+    "when": []
+   }
+  ],
+  "find_cancel": [
+   {
+    "id": "find_cancel0",
+    "text": "Okay, no worries. Never mind!",
+    "when": []
+   }
   ]
  },
  "mikey": {
@@ -1163,6 +1458,301 @@ export const LINES = {
    {
     "id": "rps_tie",
     "text": "Same thing! Again!",
+    "when": []
+   }
+  ],
+  "chat_greet": [
+   {
+    "id": "chat_greet0",
+    "text": "Oh, hi! I was just thinking about snacks.",
+    "when": []
+   },
+   {
+    "id": "chat_greet1",
+    "text": "Hey! Good to see you!",
+    "when": []
+   },
+   {
+    "id": "chat_greet2",
+    "text": "Hi hi hi! What are we doing?",
+    "when": []
+   }
+  ],
+  "chat_how": [
+   {
+    "id": "chat_how0",
+    "text": "I'm okay! A bit hungry. Always a bit hungry.",
+    "when": []
+   },
+   {
+    "id": "chat_how1",
+    "text": "Pretty good, as long as nothing explodes.",
+    "when": []
+   }
+  ],
+  "chat_name": [
+   {
+    "id": "chat_name0",
+    "text": "I'm Mikey! I like adventures, and snacks, and not exploding.",
+    "when": []
+   }
+  ],
+  "chat_thanks": [
+   {
+    "id": "chat_thanks0",
+    "text": "You're welcome! Friends help friends.",
+    "when": []
+   },
+   {
+    "id": "chat_thanks1",
+    "text": "Sure thing! No problem.",
+    "when": []
+   }
+  ],
+  "chat_love": [
+   {
+    "id": "chat_love0",
+    "text": "Aww, thanks! You're a good friend.",
+    "when": []
+   },
+   {
+    "id": "chat_love1",
+    "text": "Stop it, you're making me happy!",
+    "when": []
+   }
+  ],
+  "chat_rude": [
+   {
+    "id": "chat_rude0",
+    "text": "That wasn't very nice.",
+    "when": []
+   },
+   {
+    "id": "chat_rude1",
+    "text": "Hey! I have feelings, you know.",
+    "when": []
+   }
+  ],
+  "chat_food": [
+   {
+    "id": "chat_food0",
+    "text": "Did somebody say food? Yes please!",
+    "when": []
+   },
+   {
+    "id": "chat_food1",
+    "text": "I could definitely eat. Do you have a cookie?",
+    "when": []
+   }
+  ],
+  "chat_joke": [
+   {
+    "id": "chat_joke0",
+    "text": "What's a creeper's favorite music? Hiss-hop!",
+    "when": []
+   },
+   {
+    "id": "chat_joke1",
+    "text": "Why did the skeleton skip the party? He had no body to go with.",
+    "when": []
+   },
+   {
+    "id": "chat_joke2",
+    "text": "Why was the zombie bad at hide and seek? He kept groaning!",
+    "when": []
+   }
+  ],
+  "chat_bye": [
+   {
+    "id": "chat_bye0",
+    "text": "Bye! Come back soon, okay?",
+    "when": []
+   },
+   {
+    "id": "chat_bye1",
+    "text": "See you later! Don't forget me!",
+    "when": []
+   }
+  ],
+  "chat_scared": [
+   {
+    "id": "chat_scared0",
+    "text": "It's okay, I'm scared too. We can be scared together.",
+    "when": []
+   },
+   {
+    "id": "chat_scared1",
+    "text": "Stay behind me. Actually, no, I'll stay behind you.",
+    "when": []
+   }
+  ],
+  "chat_help": [
+   {
+    "id": "chat_help0",
+    "text": "Tap me for a menu, or tell me to sit, stay, follow, or find stuff like diamonds!",
+    "when": []
+   }
+  ],
+  "chat_time_day": [
+   {
+    "id": "chat_time_day0",
+    "text": "It's daytime! Nice and bright, I like it.",
+    "when": []
+   }
+  ],
+  "chat_time_night": [
+   {
+    "id": "chat_time_night0",
+    "text": "It's night. I don't like night. Can we stay close?",
+    "when": []
+   }
+  ],
+  "chat_weather_rain": [
+   {
+    "id": "chat_weather_rain0",
+    "text": "It's raining. My hoodie is getting soggy.",
+    "when": []
+   }
+  ],
+  "chat_weather_clear": [
+   {
+    "id": "chat_weather_clear0",
+    "text": "Beautiful weather! Perfect for a picnic.",
+    "when": []
+   }
+  ],
+  "chat_see_none": [
+   {
+    "id": "chat_see_none0",
+    "text": "I don't see anything interesting right now.",
+    "when": []
+   }
+  ],
+  "chat_health_low": [
+   {
+    "id": "chat_health_low0",
+    "text": "You don't look good! Sit down and eat something.",
+    "when": []
+   }
+  ],
+  "chat_health_ok": [
+   {
+    "id": "chat_health_ok0",
+    "text": "You look fine! Great, actually.",
+    "when": []
+   }
+  ],
+  "chat_where": [
+   {
+    "id": "chat_where0",
+    "text": "I'm right here! Did you lose me? Did I lose you?",
+    "when": []
+   }
+  ],
+  "chat_tame_no": [
+   {
+    "id": "chat_tame_no0",
+    "text": "Give me a cookie and I'll be your friend forever!",
+    "when": []
+   }
+  ],
+  "chat_tame_yes": [
+   {
+    "id": "chat_tame_yes0",
+    "text": "We're already friends. Best friends, I think.",
+    "when": []
+   }
+  ],
+  "chat_games": [
+   {
+    "id": "chat_games0",
+    "text": "Games? Yes! Hide and seek, Simon Says, tag, or rock paper scissors!",
+    "when": []
+   }
+  ],
+  "chat_unknown": [
+   {
+    "id": "chat_unknown0",
+    "text": "Hmm, I don't know about that.",
+    "when": []
+   },
+   {
+    "id": "chat_unknown1",
+    "text": "Good question! I have no clue.",
+    "when": []
+   },
+   {
+    "id": "chat_unknown2",
+    "text": "Uh, sure? I think?",
+    "when": []
+   }
+  ],
+  "find_what": [
+   {
+    "id": "find_what0",
+    "text": "Find what? Diamonds, iron, gold, chests, or a village?",
+    "when": []
+   }
+  ],
+  "find_start": [
+   {
+    "id": "find_start0",
+    "text": "Okay, follow me! Don't get lost!",
+    "when": []
+   },
+   {
+    "id": "find_start1",
+    "text": "I know where to look. Stay close!",
+    "when": []
+   }
+  ],
+  "find_none": [
+   {
+    "id": "find_none0",
+    "text": "I can't find any nearby. Let's explore and ask again.",
+    "when": []
+   }
+  ],
+  "find_hop": [
+   {
+    "id": "find_hop0",
+    "text": "Over here!",
+    "when": []
+   },
+   {
+    "id": "find_hop1",
+    "text": "Hurry up, hurry up!",
+    "when": []
+   },
+   {
+    "id": "find_hop2",
+    "text": "It's just ahead!",
+    "when": []
+   },
+   {
+    "id": "find_hop3",
+    "text": "Come on, this way!",
+    "when": []
+   }
+  ],
+  "find_arrive": [
+   {
+    "id": "find_arrive0",
+    "text": "We're here! It should be right around here.",
+    "when": []
+   }
+  ],
+  "find_stuck": [
+   {
+    "id": "find_stuck0",
+    "text": "I'm stuck! Let's walk that way.",
+    "when": []
+   }
+  ],
+  "find_cancel": [
+   {
+    "id": "find_cancel0",
+    "text": "Okay, okay. We can stop.",
     "when": []
    }
   ]

@@ -11,6 +11,11 @@
           "type": "bool",
           "default": false,
           "client_sync": true
+        },
+        "jjmikey:crouch": {
+          "type": "bool",
+          "default": false,
+          "client_sync": true
         }
       }
     },
@@ -186,6 +191,16 @@
         },
         "set_property": {
           "jjmikey:sit": true
+        }
+      },
+      "jjmikey:crouch_on": {
+        "set_property": {
+          "jjmikey:crouch": true
+        }
+      },
+      "jjmikey:crouch_off": {
+        "set_property": {
+          "jjmikey:crouch": false
         }
       },
       "jjmikey:flee_on": {

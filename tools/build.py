@@ -8,6 +8,7 @@ BP, RP = f"{ROOT}/JJ_Mikey_BP", f"{ROOT}/JJ_Mikey_RP"
 BP_U, BP_M, RP_U, RP_M, BP_S = ("6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e01", "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e02",
                                 "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e03", "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e04",
                                 "6f1d2c3e-1a2b-4c5d-8e9f-0a1b2c3d4e05")
+VS = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "VERSION")).read().strip()
 V = [int(x) for x in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "VERSION")).read().strip().split(".")]
 EGG = {"jj": ("#aa0000", "#5c342b"), "mikey": ("#45a22c", "#1d5412")}   # taken from the skins
 
@@ -17,14 +18,14 @@ def w(path, data):
         f.write(data) if isinstance(data, str) else json.dump(data, f, indent=2)
 
 w(f"{BP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Behavior)", "description": "Interactive JJ and Mikey buddies", "uuid": BP_U, "version": V, "min_engine_version": [1, 21, 100]},
+  "header": {"name": f"JJ & Mikey Friends (Behavior) v{VS}", "description": f"Interactive JJ and Mikey buddies, version {VS}", "uuid": BP_U, "version": V, "min_engine_version": [1, 21, 100]},
   "modules": [{"type": "data", "uuid": BP_M, "version": V},
               {"type": "script", "language": "javascript", "uuid": BP_S, "version": V, "entry": "scripts/main.js"}],
   "dependencies": [{"uuid": RP_U, "version": V},
                    {"module_name": "@minecraft/server", "version": "2.0.0"},
                    {"module_name": "@minecraft/server-ui", "version": "2.0.0"}]})
 w(f"{RP}/manifest.json", {"format_version": 2,
-  "header": {"name": "JJ & Mikey Friends (Skins)", "description": "Skins and voices for JJ and Mikey", "uuid": RP_U, "version": V, "min_engine_version": [1, 21, 100]},
+  "header": {"name": f"JJ & Mikey Friends (Skins) v{VS}", "description": f"Skins and voices for JJ and Mikey, version {VS}", "uuid": RP_U, "version": V, "min_engine_version": [1, 21, 100]},
   "modules": [{"type": "resources", "uuid": RP_M, "version": V}]})
 
 # dialogue data for the script
@@ -36,7 +37,8 @@ for key, c in LINES.items():
     n = c["name"]
     bp = {"format_version": "1.21.0", "minecraft:entity": {
       "description": {"identifier": f"jjmikey:{key}", "is_spawnable": True, "is_summonable": True, "is_experimental": False,
-                       "properties": {"jjmikey:sit": {"type": "bool", "default": False, "client_sync": True}}},
+                       "properties": {"jjmikey:sit": {"type": "bool", "default": False, "client_sync": True},
+                                      "jjmikey:crouch": {"type": "bool", "default": False, "client_sync": True}}},
       "component_groups": {
         "tamed": {
           "minecraft:is_tamed": {},
@@ -85,6 +87,8 @@ for key, c in LINES.items():
                                 "playsound jjmikey.%s.%s @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1" % (key, c["tamed"][0][0])]}},
         "jjmikey:stay": {"add": {"component_groups": ["stay"]}},
         "jjmikey:sit": {"add": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": True}},
+        "jjmikey:crouch_on": {"set_property": {"jjmikey:crouch": True}},
+        "jjmikey:crouch_off": {"set_property": {"jjmikey:crouch": False}},
         "jjmikey:flee_on": {"add": {"component_groups": ["flee"]}},
         "jjmikey:flee_off": {"remove": {"component_groups": ["flee"]}},
         "jjmikey:go": {"remove": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": False}}
@@ -107,9 +111,9 @@ for key, c in LINES.items():
         "geometry": {"default": "geometry.jjmikey.humanoid"},
         "animations": {"move": "animation.humanoid.move", "base_pose": "animation.humanoid.base_pose",
                        "look_at_target": "animation.humanoid.look_at_target.default",
-                       "sit": "animation.jjmikey.sit"},
+                       "sit": "animation.jjmikey.sit", "crouch": "animation.jjmikey.crouch"},
         "scripts": {"animate": ["base_pose", {"move": "query.is_moving && !query.property('jjmikey:sit')"}, "look_at_target",
-                                {"sit": "query.property('jjmikey:sit')"}]},
+                                {"sit": "query.property('jjmikey:sit')"}, {"crouch": "query.property('jjmikey:crouch')"}]},
         "render_controllers": ["controller.render.default"],
         "spawn_egg": {"base_color": EGG[key][0], "overlay_color": EGG[key][1]}}}})
 
@@ -143,7 +147,11 @@ w(f"{RP}/animations/jjmikey.animation.json", {"format_version": "1.8.0", "animat
     "animation.jjmikey.sit": {"loop": True, "bones": {
         "root": {"position": [0, -10, 0]},
         "rightLeg": {"rotation": [-90, 10, 0]}, "leftLeg": {"rotation": [-90, -10, 0]},
-        "rightArm": {"rotation": [-25, 0, 8]}, "leftArm": {"rotation": [-25, 0, -8]}}}}})
+        "rightArm": {"rotation": [-25, 0, 8]}, "leftArm": {"rotation": [-25, 0, -8]}},
+    },
+    "animation.jjmikey.crouch": {"loop": True, "bones": {
+        "root": {"position": [0, -3, 0]}, "body": {"rotation": [22, 0, 0]}, "head": {"position": [0, 0, -2]},
+        "rightLeg": {"rotation": [-18, 0, 0]}, "leftLeg": {"rotation": [-18, 0, 0]}}}}})
 
 # one sound per dialogue line
 sd = {}

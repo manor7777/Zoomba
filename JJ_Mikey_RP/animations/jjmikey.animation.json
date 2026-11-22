@@ -40,6 +40,46 @@
           ]
         }
       }
+    },
+    "animation.jjmikey.crouch": {
+      "loop": true,
+      "bones": {
+        "root": {
+          "position": [
+            0,
+            -3,
+            0
+          ]
+        },
+        "body": {
+          "rotation": [
+            22,
+            0,
+            0
+          ]
+        },
+        "head": {
+          "position": [
+            0,
+            0,
+            -2
+          ]
+        },
+        "rightLeg": {
+          "rotation": [
+            -18,
+            0,
+            0
+          ]
+        },
+        "leftLeg": {
+          "rotation": [
+            -18,
+            0,
+            0
+          ]
+        }
+      }
     }
   }
 }
