@@ -335,11 +335,20 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
 });
 
 // ---------- tap to open the menu (sneak + tap = quick toggle follow <-> sit) ----------
-world.afterEvents.playerInteractWithEntity.subscribe((ev) => {
-  const buddy = ev.target;
-  if (!(buddy.typeId in TYPES)) return;
-  const held = ev.itemStack?.typeId;
+// The "before" event fires on every tap, even with an empty hand. (The "after" event only fires when the game
+// itself handled the tap, e.g. feeding a cookie, which is why the menu only showed up once.) Both are wired up
+// and de-duplicated so it works either way.
+const lastOpen = new Map(); // player.id -> tick
+function handleTap(player, buddy, itemStack) {
+  if (!buddy || !(buddy.typeId in TYPES)) return;
+  const now = system.currentTick;
+  if (now - (lastOpen.get(player.id) ?? -999) < 8) return;
+  const held = itemStack?.typeId;
   if (!buddy.hasTag("jjmikey_tamed") && (held === "minecraft:cookie" || held === "minecraft:golden_apple")) return; // let taming happen
-  if (ev.player.isSneaking) { system.run(() => quickToggle(buddy, ev.player)); return; }
-  system.run(() => showMenu(ev.player, buddy));
-});
+  lastOpen.set(player.id, now);
+  system.run(() => {
+    if (player.isSneaking) quickToggle(buddy, player); else showMenu(player, buddy);
+  });
+}
+world.beforeEvents.playerInteractWithEntity.subscribe((ev) => handleTap(ev.player, ev.target, ev.itemStack));
+world.afterEvents.playerInteractWithEntity.subscribe((ev) => handleTap(ev.player, ev.target, ev.itemStack));
