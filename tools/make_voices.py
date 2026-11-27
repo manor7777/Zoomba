@@ -1,59 +1,69 @@
-"""Generates one short 'animalese'-style voice clip per dialogue line (soft sine blips, one per syllable).
-Original synthesized sounds - not recordings of anyone. Replace the .ogg files with real recordings any time."""
-import numpy as np, wave, subprocess, os, sys, re, random
+"""Generates one voice clip per dialogue line using the eSpeak NG speech synthesizer (real synthesized speech).
+Not recordings of anyone. Needs:  pip install --target <dir> espeakng-loader   and   ffmpeg.
+Usage: python3 tools/make_voices.py <RP/sounds dir> [path to the pip --target dir]"""
+import ctypes, os, sys, subprocess, wave, re
+import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lines import LINES, CATS
 
-SR = 22050
-VOW = {"a": 0, "e": 2, "i": 5, "o": -3, "u": -5, "y": 3}
+if len(sys.argv) > 2: sys.path.insert(0, sys.argv[2])
+import espeakng_loader
 
-def blip(freq_start, freq, dur):
-    n = int(SR * dur); t = np.arange(n) / SR
-    f = np.where(t < 0.018, freq_start + (freq - freq_start) * t / 0.018, freq)
-    ph = np.cumsum(2 * np.pi * f / SR)
-    y = np.sin(ph) + 0.30 * np.sin(2 * ph) + 0.10 * np.sin(3 * ph)
-    env = np.minimum(1, t / 0.008) * np.exp(-3.2 * t / dur) * np.minimum(1, (dur - t) / 0.012)
-    return y * env
+lib = ctypes.CDLL(espeakng_loader.get_library_path())
+data_dir = espeakng_loader.get_data_path()
+SR = lib.espeak_Initialize(2, 0, os.path.dirname(data_dir).encode(), 0)   # AUDIO_OUTPUT_SYNCHRONOUS
+if SR <= 0:
+    SR = lib.espeak_Initialize(2, 0, data_dir.encode(), 0)
+assert SR > 0, "espeak init failed"
 
-def render(text, base, speed, seed):
-    rnd = random.Random(seed)
-    words = re.findall(r"[A-Za-z']+|[.,!?]", text)
-    out, n_total = [], sum(1 for w in words if w[0].isalpha())
-    wi = 0
-    for w in words:
-        if not w[0].isalpha():
-            out.append(np.zeros(int(SR * (0.22 if w in ".!?" else 0.12)))); continue
-        sylls = re.findall(r"[^aeiouy']*[aeiouy]+(?:[^aeiouy']+(?![aeiouy]))?|[^aeiouy']+", w.lower()) or [w.lower()]
-        for s in sylls:
-            v = next((c for c in s if c in VOW), "a")
-            semi = VOW[v] + (ord(s[0]) % 5) - 2 + rnd.uniform(-0.6, 0.6)
-            semi += 2.5 * np.sin(np.pi * wi / max(1, n_total))          # gentle phrase arch
-            if text.rstrip().endswith("?") and wi >= n_total - 2: semi += 3
-            if text.rstrip().endswith("!"): semi += 1
-            if text.rstrip().endswith(".") and wi >= n_total - 1: semi -= 2
-            f = base * 2 ** (semi / 12)
-            out.append(blip(f * 0.94, f, rnd.uniform(0.075, 0.105) / speed))
-            out.append(np.zeros(int(SR * 0.012)))
-        out.append(np.zeros(int(SR * 0.05)))
-        wi += 1
-    y = np.concatenate(out)
-    return y / (np.abs(y).max() + 1e-9) * 0.55
+chunks = []
+CB = ctypes.CFUNCTYPE(ctypes.c_int, ctypes.POINTER(ctypes.c_short), ctypes.c_int, ctypes.c_void_p)
+def _cb(wav, n, ev):
+    if wav and n > 0: chunks.append(np.ctypeslib.as_array(wav, shape=(n,)).copy())
+    return 0
+_cb_ref = CB(_cb)
+lib.espeak_SetSynthCallback(_cb_ref)
+
+# parameters: 1 rate(wpm), 2 volume, 3 pitch(0-100), 4 range(0-100)
+VOICES = {  # name: (espeak voice, wpm, pitch, range)
+    "jj":    ("en-us+m3", 185, 66, 70),
+    "mikey": ("en-us+m1", 170, 48, 55),
+}
+
+def synth(text, voice, wpm, pitch, rng):
+    lib.espeak_SetVoiceByName(voice.encode())
+    lib.espeak_SetParameter(1, wpm, 0); lib.espeak_SetParameter(3, pitch, 0); lib.espeak_SetParameter(4, rng, 0)
+    chunks.clear()
+    b = text.encode("utf-8") + b"\0"
+    lib.espeak_Synth(b, len(b), 0, 0, 0, 1, None, None)   # flags=espeakCHARS_UTF8
+    lib.espeak_Synchronize()
+    return np.concatenate(chunks).astype(np.float32) / 32768.0 if chunks else np.zeros(1, np.float32)
+
+def clean(t):  # make the text read naturally
+    t = t.replace("JJ", "J J").replace("...", ", ").replace("ssside", "side")
+    return re.sub(r"\s+", " ", t)
 
 def save(y, path):
+    y = np.concatenate([np.zeros(int(SR * 0.03)), y, np.zeros(int(SR * 0.08))])
+    y = y / (np.abs(y).max() + 1e-9) * 0.8
     wav = path + ".wav"
     with wave.open(wav, "wb") as w:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR)
         w.writeframes((y * 32767).astype(np.int16).tobytes())
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-c:a", "libvorbis", "-q:a", "5", path + ".ogg"], check=True)
+    # gentle EQ so it sounds less harsh: trim highs, add a little warmth, even out volume
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", wav, "-af",
+                    "highpass=f=90,lowpass=f=7500,equalizer=f=250:t=q:w=1:g=2,acompressor=threshold=-18dB:ratio=3,loudnorm=I=-18:TP=-2",
+                    "-ar", "22050", "-c:a", "libvorbis", "-q:a", "5", path + ".ogg"], check=True)
     os.remove(wav)
 
 if __name__ == "__main__":
     out = sys.argv[1]
+    only = os.environ.get("ONLY")
     for key, c in LINES.items():
         os.makedirs(f"{out}/{key}", exist_ok=True)
-        for f in os.listdir(f"{out}/{key}"): os.remove(f"{out}/{key}/{f}")
+        v = VOICES[key]
         for cat in CATS:
             for (lid, text, _) in c[cat]:
-                save(render(text, c["voice"]["base"], c["voice"]["speed"], hash(lid) % 1000 if False else sum(map(ord, key + lid))),
-                     f"{out}/{key}/{lid}")
-    print("voices done")
+                if only and lid != only: continue
+                save(synth(clean(text), *v), f"{out}/{key}/{lid}")
+    print("voices done, sample rate", SR)
