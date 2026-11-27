@@ -256,3 +256,17 @@ for _k in ("jj", "mikey"):
     for _cat, _t in _V19[_k].items():
         LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
 CATS += list(_V19["jj"].keys())
+
+# ---------- v1.11: minecarts ----------
+_V111 = {
+ "jj": {"mc_in": ["All aboard! Let's ride!"], "mc_none": ["I don't see a minecart around here."],
+        "mc_full": ["There's already somebody in that minecart!"], "mc_cant": ["Hmm, I can't get into that minecart. Sorry!"],
+        "mc_out": ["Okay, hopping out!"], "mc_ride": ["Wheee, this is awesome!", "Look at me go!"]},
+ "mikey": {"mc_in": ["Okay, I'm in! Please don't go too fast."], "mc_none": ["I don't see any minecarts nearby."],
+           "mc_full": ["Somebody's already in that one!"], "mc_cant": ["I can't get in that minecart. I tried!"],
+           "mc_out": ["Okay, I'm getting out now."], "mc_ride": ["Whoa, whoa, not so fast!", "This is kind of fun!"]},
+}
+for _k in ("jj", "mikey"):
+    for _cat, _t in _V111[_k].items():
+        LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
+CATS += list(_V111["jj"].keys())

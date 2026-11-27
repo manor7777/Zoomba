@@ -22,13 +22,6 @@
     "component_groups": {
       "tamed": {
         "minecraft:is_tamed": {},
-        "minecraft:behavior.follow_owner": {
-          "priority": 4,
-          "speed_multiplier": 1.5,
-          "start_distance": 4,
-          "stop_distance": 2.5,
-          "post_teleport_distance": 3
-        },
         "minecraft:behavior.owner_hurt_by_target": {
           "priority": 1
         },
@@ -65,6 +58,15 @@
           "priority": 3,
           "speed_multiplier": 1.2,
           "track_target": true
+        }
+      },
+      "follow": {
+        "minecraft:behavior.follow_owner": {
+          "priority": 4,
+          "speed_multiplier": 1.5,
+          "start_distance": 4,
+          "stop_distance": 2.5,
+          "post_teleport_distance": 3
         }
       },
       "stay": {
@@ -178,7 +180,8 @@
       "jjmikey:on_tame": {
         "add": {
           "component_groups": [
-            "tamed"
+            "tamed",
+            "follow"
           ]
         },
         "queue_command": {
@@ -216,19 +219,52 @@
           "jjmikey:crouch": false
         }
       },
+      "jjmikey:ensure_follow": {
+        "filters": {
+          "test": "has_tag",
+          "subject": "self",
+          "value": "jjmikey_tamed"
+        },
+        "add": {
+          "component_groups": [
+            "follow"
+          ]
+        }
+      },
       "jjmikey:explore_on": {
         "add": {
           "component_groups": [
             "explore"
           ]
+        },
+        "remove": {
+          "component_groups": [
+            "follow"
+          ]
         }
       },
       "jjmikey:explore_off": {
-        "remove": {
-          "component_groups": [
-            "explore"
-          ]
-        }
+        "sequence": [
+          {
+            "remove": {
+              "component_groups": [
+                "explore"
+              ]
+            }
+          },
+          {
+            "filters": {
+              "test": "has_tag",
+              "subject": "self",
+              "value": "jjmikey_tamed"
+            },
+            "add": {
+              "component_groups": [
+                "follow"
+              ]
+            }
+          }
+        ]
       },
       "jjmikey:flee_on": {
         "add": {

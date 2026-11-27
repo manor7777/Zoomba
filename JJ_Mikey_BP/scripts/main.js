@@ -161,32 +161,24 @@ async function showMenu(player, buddy, tries = 0) {
   const tamed = buddy.hasTag("jjmikey_tamed");
   const own = isOwner(buddy, player);
   const g = games.get(buddy.id);
-  const mode = buddy.hasTag("jjmikey_sit") ? "sit" : buddy.hasTag("jjmikey_stay") ? "stay" : "follow";
+  const mode = modeOf(buddy);
   const muted = player.hasTag("jjmikey_mute");
   const buttons = [];
   const form = new ActionFormData().title(`${c.color}${c.name}`);
   form.body(!tamed ? `Feed ${c.name} a cookie or a golden apple to make friends.`
-    : own ? `${c.name} is your buddy!${g ? "\nA game is running." : ""}`
+    : own ? `${c.name} is your buddy! Right now: ${MODE_LABEL[mode]}.${g ? "\nA game is running." : ""}`
     : `${c.name} is ${ownerName(buddy)}'s buddy. You can chat and play games with them!${g ? "\nA game is running." : ""}`);
   const add = (label, fn) => { form.button(label); buttons.push(fn); };
   add("Chat", () => speak(buddy, "talk", player));
   add(`Talk to ${c.name} (type)`, () => talkForm(player, buddy));
   if (own) {
     add("Find something...", () => findMenu(player, buddy));
-    add(buddy.hasTag("jjmikey_explore") ? "Stop exploring (come back)" : "Go exploring", () => {
-      if (buddy.hasTag("jjmikey_explore")) { stopExplore(buddy, player); setMode(buddy, player, "follow"); }
-      else if (!startExplore(buddy, player)) player.sendMessage("§7Not right now.");
-    });
     add("Ask for a gift", () => gift(buddy, player));
-    if (mode === "follow") {
-      add("Stay here (standing)", () => setMode(buddy, player, "stay"));
-      add("Sit down", () => setMode(buddy, player, "sit"));
-    } else {
-      add(tamed ? "Follow me" : "Wander again", () => setMode(buddy, player, "follow"));
-      if (mode === "stay") add("Sit down", () => setMode(buddy, player, "sit"));
-      else add("Stand up (stay here)", () => setMode(buddy, player, "stay"));
+    for (const [m, label] of [["follow", tamed ? "Follow me" : "Wander near me"], ["stay", "Stay here (standing)"], ["sit", "Sit down"], ["explore", "Go exploring"]]) {
+      if (m !== mode) add(label, () => setMode(buddy, player, m));
     }
     if (tamed) add("Punch what I'm looking at", () => punch(buddy, player));
+    add(ridingCart(buddy) ? "Get out of the minecart" : "Hop in a minecart", () => (ridingCart(buddy) ? exitCart(buddy, player) : boardCart(buddy, player)));
   }
   if (g) { if (own || g.starter === player) add("Stop the game", () => endGame(buddy, player, true)); }
   else add("Play a game", () => gameMenu(player, buddy));
@@ -229,6 +221,7 @@ function gift(buddy, player, force = false) {
 }
 
 function applyMode(buddy, mode) {
+  leaveCart(buddy);
   buddy.removeTag("jjmikey_stay");
   buddy.removeTag("jjmikey_sit");
   try { buddy.triggerEvent("jjmikey:go"); } catch { }
@@ -240,7 +233,13 @@ function applyMode(buddy, mode) {
     try { buddy.triggerEvent("jjmikey:sit"); } catch { }
   }
 }
+const MODE_LABEL = { follow: "following you", stay: "staying put", sit: "sitting", explore: "off exploring" };
+function modeOf(buddy) {
+  return buddy.hasTag("jjmikey_sit") ? "sit" : buddy.hasTag("jjmikey_stay") ? "stay" : buddy.hasTag("jjmikey_explore") ? "explore" : "follow";
+}
 function setMode(buddy, player, mode) {
+  if (mode === "explore") { if (!startExplore(buddy, player)) { try { player.sendMessage("§7Not right now."); } catch { } } return; }
+  if (buddy.hasTag("jjmikey_explore")) stopExplore(buddy, null); // any other mode ends the trip
   applyMode(buddy, mode);
   speak(buddy, mode === "stay" ? "stay" : mode === "sit" ? "sit" : "go", player);
 }
@@ -951,12 +950,14 @@ function reply(buddy, player, t) {
   if (has(/\b(stop|cancel|never ?mind|quit)\b/)) { if (g && !own && g.starter !== player) return denyOwner(buddy, player); if (g) { speak(buddy, "find_cancel", player); endGame(buddy, player); } else speak(buddy, "chat_unknown", player); return; }
   if (has(/where( are| r)? (you|u)\b|^where( is|'s)?$|where did you go/)) return speak(buddy, "chat_where", player);
   if (!own && ((key && has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/)) ||
-      has(/\b(find|show me|lead me|take me|locate|search|look for)\b|come back|explor|adventure|for a walk|wander off|\bsit\b|\b(stay|wait|stand|freeze)\b|\b(follow|come|with me|let'?s go|walk with)\b|\b(punch|attack|hit|smash|fight)\b|\b(gift|give me|present|reward)\b/))) return denyOwner(buddy, player);
+      has(/\b(find|show me|lead me|take me|locate|search|look for)\b|come back|explor|adventure|for a walk|wander off|\bsit\b|\b(stay|wait|stand|freeze)\b|\b(follow|come|with me|let'?s go|walk with)\b|\b(punch|attack|hit|smash|fight)\b|\b(gift|give me|present|reward)\b|mine ?cart|\bcart\b|\brails?\b|\bride\b|(get|hop|jump|climb) (in|into|on|out|off)|dismount/))) return denyOwner(buddy, player);
   if (has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/) && key) return startFind(buddy, player, key);
   if (has(/\b(find|show me|lead me|take me|locate|search|look for)\b/)) return speak(buddy, "find_what", player);
   if (st(buddy).trap && has(/where|help|directions|find you|how do i get|how to get|which way|find us/)) return trapReply(buddy, player);
   if (has(/come back|stop explor/)) { if (buddy.hasTag("jjmikey_explore")) stopExplore(buddy, player); return setMode(buddy, player, "follow"); }
   if (has(/explor|adventure|for a walk|wander off/)) { if (!startExplore(buddy, player)) speak(buddy, "chat_unknown", player); return; }
+  if (has(/(get|hop|jump|climb|come|step) (out|off|down)|dismount|stop riding|leave the (mine ?)?cart/)) return exitCart(buddy, player);
+  if (has(/mine ?cart|\bcart\b|\brails?\b|ride/) || has(/(get|hop|jump|climb|go) (in|into|on)/)) return boardCart(buddy, player);
   if (has(/\bsit\b/)) return setMode(buddy, player, "sit");
   if (has(/\b(stay|wait|stand|freeze)\b/)) return setMode(buddy, player, "stay");
   if (has(/\b(follow|come|with me|let'?s go|walk with)\b/)) return setMode(buddy, player, "follow");
@@ -1142,6 +1143,7 @@ system.runInterval(() => {
   const all = allBuddies();
   for (const e of all) {
     claimIfEmpty(e); ensureName(e);
+    try { if (e.hasTag("jjmikey_tamed") && !e.hasTag("jjmikey_f1") && !e.hasTag("jjmikey_explore")) { e.triggerEvent("jjmikey:ensure_follow"); e.addTag("jjmikey_f1"); } } catch { }
     try { world.setDynamicProperty(`jjmikey:last:${TYPES[e.typeId]}:${e.dimension.id}`, JSON.stringify({ x: e.location.x, y: e.location.y, z: e.location.z })); } catch { }
     const s = st(e);
     if (games.has(e.id) || e.hasTag("jjmikey_sit") || e.hasTag("jjmikey_stay")) { s.trap = null; s.trapCount = 0; continue; }
@@ -1321,3 +1323,55 @@ world.afterEvents.itemUse.subscribe((ev) => {
     system.run(() => compassMenu(p));
   }
 });
+
+// =====================================================================
+// MINECARTS: tell them to hop in (or out), they chat while riding
+// =====================================================================
+function ridingCart(buddy) {
+  try { const r = buddy.getComponent("minecraft:riding"); return r ? r.entityRidingOn : undefined; } catch { return undefined; }
+}
+function leaveCart(buddy) {
+  const cart = ridingCart(buddy);
+  if (!cart) return false;
+  try { cart.getComponent("minecraft:rideable").ejectRider(buddy); } catch { try { buddy.runCommand("ride @s stop_riding"); } catch { } }
+  return true;
+}
+function exitCart(buddy, player) {
+  if (leaveCart(buddy)) speak(buddy, "mc_out", player); else speak(buddy, "chat_unknown", player);
+}
+function boardCart(buddy, player) {
+  if (!alive(buddy) || !alive(player)) return;
+  if (ridingCart(buddy)) { speak(buddy, "mc_in", player); return; }
+  let carts = [];
+  try { carts = player.dimension.getEntities({ type: "minecraft:minecart", location: player.location, maxDistance: 24 }); } catch { }
+  carts.sort((a, b) => dist(a.location, player.location) - dist(b.location, player.location));
+  if (carts.length === 0) { speak(buddy, "mc_none", player); return; }
+  const cart = carts.find((c) => { try { return c.getComponent("minecraft:rideable").getRiders().length === 0; } catch { return true; } });
+  if (!cart) { speak(buddy, "mc_full", player); return; }
+  if (buddy.hasTag("jjmikey_explore")) stopExplore(buddy, null);
+  try { buddy.teleport({ x: cart.location.x + 1, y: cart.location.y, z: cart.location.z }, { facingLocation: cart.location }); } catch { }
+  let ok = false;
+  try { ok = cart.getComponent("minecraft:rideable").addRider(buddy); } catch { }
+  if (!ok) {
+    const l = cart.location;
+    try { buddy.runCommand(`ride @s start_riding @e[type=minecart,x=${l.x},y=${l.y},z=${l.z},c=1] teleport_rider`); } catch { }
+  }
+  system.runTimeout(() => {
+    if (!alive(buddy)) return;
+    if (ridingCart(buddy)) { buddy.addTag("jjmikey_cart"); speak(buddy, "mc_in", player); return; }
+    speak(buddy, "mc_cant", player);
+    try { // tell us why, in case this version only lets certain mobs ride
+      const types = cart.getComponent("minecraft:rideable").getFamilyTypes();
+      player.sendMessage(`§7(Minecart seats only take these families: ${types.join(", ") || "none"}.)`);
+    } catch { }
+  }, 8);
+}
+system.runInterval(() => {
+  let players = [];
+  try { players = world.getPlayers(); } catch { return; }
+  for (const e of allBuddies()) {
+    if (!ridingCart(e)) { if (e.hasTag("jjmikey_cart")) e.removeTag("jjmikey_cart"); continue; }
+    const near = players.filter((p) => p.dimension.id === e.dimension.id && dist(p.location, e.location) <= 20);
+    if (near.length > 0 && Math.random() < 0.3) speak(e, "mc_ride", near[0]);
+  }
+}, 300);

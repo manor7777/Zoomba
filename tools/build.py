@@ -1,6 +1,7 @@
 import json, os, zipfile, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lines import LINES, CATS
+import make_icon
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BP, RP = f"{ROOT}/JJ_Mikey_BP", f"{ROOT}/JJ_Mikey_RP"
@@ -42,7 +43,6 @@ for key, c in LINES.items():
       "component_groups": {
         "tamed": {
           "minecraft:is_tamed": {},
-          "minecraft:behavior.follow_owner": {"priority": 4, "speed_multiplier": 1.5, "start_distance": 4, "stop_distance": 2.5, "post_teleport_distance": 3},
           "minecraft:behavior.owner_hurt_by_target": {"priority": 1},
           "minecraft:behavior.owner_hurt_target": {"priority": 2},
           # punches hostile mobs near you on its own, so it also works in creative (where you never get hurt)
@@ -52,6 +52,8 @@ for key, c in LINES.items():
                   {"test": "is_family", "subject": "other", "operator": "!=", "value": "creeper"}]}}]},
           "minecraft:behavior.melee_attack": {"priority": 3, "speed_multiplier": 1.2, "track_target": True}
         },
+        # following is its own group so exploring can switch it off (it outranks wandering otherwise)
+        "follow": {"minecraft:behavior.follow_owner": {"priority": 4, "speed_multiplier": 1.5, "start_distance": 4, "stop_distance": 2.5, "post_teleport_distance": 3}},
         "stay": {"minecraft:movement": {"value": 0.0}},
         "explore": {"minecraft:movement": {"value": 0.3},
                     "minecraft:behavior.random_stroll": {"priority": 5, "speed_multiplier": 1.0, "xz_dist": 64, "y_dist": 12, "interval": 8}},
@@ -83,7 +85,7 @@ for key, c in LINES.items():
         "minecraft:behavior.random_look_around": {"priority": 8}
       },
       "events": {
-        "jjmikey:on_tame": {"add": {"component_groups": ["tamed"]},
+        "jjmikey:on_tame": {"add": {"component_groups": ["tamed", "follow"]},
                             "queue_command": {"command": ["tag @s add jjmikey_tamed",
                                 'tellraw @a[r=10] {"rawtext":[{"text":"%s%s§r: %s"}]}' % (c["color"], n, c["tamed"][0][1]),
                                 "playsound jjmikey.%s.%s @a[r=16,tag=!jjmikey_mute] ~ ~ ~ 1 1" % (key, c["tamed"][0][0])]}},
@@ -91,8 +93,12 @@ for key, c in LINES.items():
         "jjmikey:sit": {"add": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": True}},
         "jjmikey:crouch_on": {"set_property": {"jjmikey:crouch": True}},
         "jjmikey:crouch_off": {"set_property": {"jjmikey:crouch": False}},
-        "jjmikey:explore_on": {"add": {"component_groups": ["explore"]}},
-        "jjmikey:explore_off": {"remove": {"component_groups": ["explore"]}},
+        # migration: buddies tamed before v1.11 had following inside the "tamed" group
+        "jjmikey:ensure_follow": {"filters": {"test": "has_tag", "subject": "self", "value": "jjmikey_tamed"}, "add": {"component_groups": ["follow"]}},
+        "jjmikey:explore_on": {"add": {"component_groups": ["explore"]}, "remove": {"component_groups": ["follow"]}},
+        "jjmikey:explore_off": {"sequence": [
+            {"remove": {"component_groups": ["explore"]}},
+            {"filters": {"test": "has_tag", "subject": "self", "value": "jjmikey_tamed"}, "add": {"component_groups": ["follow"]}}]},
         "jjmikey:flee_on": {"add": {"component_groups": ["flee"]}},
         "jjmikey:flee_off": {"remove": {"component_groups": ["flee"]}},
         "jjmikey:go": {"remove": {"component_groups": ["stay"]}, "set_property": {"jjmikey:sit": False}}
@@ -156,6 +162,9 @@ w(f"{RP}/animations/jjmikey.animation.json", {"format_version": "1.8.0", "animat
     "animation.jjmikey.crouch": {"loop": True, "bones": {
         "root": {"position": [0, -3, 0]}, "body": {"rotation": [22, 0, 0]}, "head": {"position": [0, 0, -2]},
         "rightLeg": {"rotation": [-18, 0, 0]}, "leftLeg": {"rotation": [-18, 0, 0]}}}}})
+
+# ---- a different pack icon per version, with the version number on it ----
+for _pack in (BP, RP): make_icon.make(VS, f"{_pack}/pack_icon.png")
 
 # ---- Buddy Compass item ----
 w(f"{BP}/items/buddy_compass.json", {"format_version": "1.21.0", "minecraft:item": {

@@ -987,6 +987,53 @@ export const LINES = {
     "text": "Sorry, I'm somebody else's buddy! But I'll play a game with you!",
     "when": []
    }
+  ],
+  "mc_in": [
+   {
+    "id": "mc_in0",
+    "text": "All aboard! Let's ride!",
+    "when": []
+   }
+  ],
+  "mc_none": [
+   {
+    "id": "mc_none0",
+    "text": "I don't see a minecart around here.",
+    "when": []
+   }
+  ],
+  "mc_full": [
+   {
+    "id": "mc_full0",
+    "text": "There's already somebody in that minecart!",
+    "when": []
+   }
+  ],
+  "mc_cant": [
+   {
+    "id": "mc_cant0",
+    "text": "Hmm, I can't get into that minecart. Sorry!",
+    "when": []
+   }
+  ],
+  "mc_out": [
+   {
+    "id": "mc_out0",
+    "text": "Okay, hopping out!",
+    "when": []
+   }
+  ],
+  "mc_ride": [
+   {
+    "id": "mc_ride0",
+    "text": "Wheee, this is awesome!",
+    "when": []
+   },
+   {
+    "id": "mc_ride1",
+    "text": "Look at me go!",
+    "when": []
+   }
   ]
  },
  "mikey": {
@@ -1975,6 +2022,53 @@ export const LINES = {
    {
     "id": "not_owner0",
     "text": "I only do that for my friend. But I'll play a game with you!",
+    "when": []
+   }
+  ],
+  "mc_in": [
+   {
+    "id": "mc_in0",
+    "text": "Okay, I'm in! Please don't go too fast.",
+    "when": []
+   }
+  ],
+  "mc_none": [
+   {
+    "id": "mc_none0",
+    "text": "I don't see any minecarts nearby.",
+    "when": []
+   }
+  ],
+  "mc_full": [
+   {
+    "id": "mc_full0",
+    "text": "Somebody's already in that one!",
+    "when": []
+   }
+  ],
+  "mc_cant": [
+   {
+    "id": "mc_cant0",
+    "text": "I can't get in that minecart. I tried!",
+    "when": []
+   }
+  ],
+  "mc_out": [
+   {
+    "id": "mc_out0",
+    "text": "Okay, I'm getting out now.",
+    "when": []
+   }
+  ],
+  "mc_ride": [
+   {
+    "id": "mc_ride0",
+    "text": "Whoa, whoa, not so fast!",
+    "when": []
+   },
+   {
+    "id": "mc_ride1",
+    "text": "This is kind of fun!",
     "when": []
    }
   ]
