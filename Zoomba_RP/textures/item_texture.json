@@ -1,0 +1,12 @@
+{
+  "resource_pack_name": "zoomba",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "baby_potion": {
+      "textures": "textures/items/baby_potion"
+    },
+    "growth_potion": {
+      "textures": "textures/items/growth_potion"
+    }
+  }
+}
