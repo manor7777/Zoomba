@@ -1618,6 +1618,17 @@
         }
       ]
     },
+    "jjmikey.jj.not_owner0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/jj/not_owner0",
+          "volume": 1.0
+        }
+      ]
+    },
     "jjmikey.mikey.hi": {
       "category": "neutral",
       "min_distance": 2,
@@ -3231,6 +3242,17 @@
       "sounds": [
         {
           "name": "sounds/mikey/explore_end0",
+          "volume": 1.0
+        }
+      ]
+    },
+    "jjmikey.mikey.not_owner0": {
+      "category": "neutral",
+      "min_distance": 2,
+      "max_distance": 16,
+      "sounds": [
+        {
+          "name": "sounds/mikey/not_owner0",
           "volume": 1.0
         }
       ]

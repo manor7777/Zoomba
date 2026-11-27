@@ -42,7 +42,7 @@ for key, c in LINES.items():
       "component_groups": {
         "tamed": {
           "minecraft:is_tamed": {},
-          "minecraft:behavior.follow_owner": {"priority": 4, "speed_multiplier": 1.2, "start_distance": 8, "stop_distance": 3},
+          "minecraft:behavior.follow_owner": {"priority": 4, "speed_multiplier": 1.5, "start_distance": 4, "stop_distance": 2.5, "post_teleport_distance": 3},
           "minecraft:behavior.owner_hurt_by_target": {"priority": 1},
           "minecraft:behavior.owner_hurt_target": {"priority": 2},
           # punches hostile mobs near you on its own, so it also works in creative (where you never get hurt)
@@ -54,7 +54,7 @@ for key, c in LINES.items():
         },
         "stay": {"minecraft:movement": {"value": 0.0}},
         "explore": {"minecraft:movement": {"value": 0.3},
-                    "minecraft:behavior.random_stroll": {"priority": 5, "speed_multiplier": 1.0, "xz_dist": 48, "y_dist": 10, "interval": 12}},
+                    "minecraft:behavior.random_stroll": {"priority": 5, "speed_multiplier": 1.0, "xz_dist": 64, "y_dist": 12, "interval": 8}},
         "flee": {"minecraft:behavior.avoid_mob_type": {"priority": 0, "remove_target": False, "entity_types": [
             {"filters": {"test": "is_family", "subject": "other", "value": "player"}, "max_dist": 12,
              "walk_speed_multiplier": 1.3, "sprint_speed_multiplier": 1.7}]}}
@@ -63,7 +63,7 @@ for key, c in LINES.items():
         "minecraft:type_family": {"family": ["jj_mikey", "friend"]},
         "minecraft:collision_box": {"width": 0.6, "height": 1.9},
         "minecraft:health": {"value": 30, "max": 30},
-        "minecraft:movement": {"value": 0.27},
+        "minecraft:movement": {"value": 0.3},
         "minecraft:movement.basic": {},
         "minecraft:navigation.walk": {"can_path_over_water": False, "avoid_water": True, "can_open_doors": True, "can_pass_doors": True, "avoid_damage_blocks": True},
         "minecraft:jump.static": {},

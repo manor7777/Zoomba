@@ -980,6 +980,13 @@ export const LINES = {
     "text": "That was a great adventure! I wish you'd come along.",
     "when": []
    }
+  ],
+  "not_owner": [
+   {
+    "id": "not_owner0",
+    "text": "Sorry, I'm somebody else's buddy! But I'll play a game with you!",
+    "when": []
+   }
   ]
  },
  "mikey": {
@@ -1961,6 +1968,13 @@ export const LINES = {
    {
     "id": "explore_end0",
     "text": "Okay, I'm done exploring. That was tiring.",
+    "when": []
+   }
+  ],
+  "not_owner": [
+   {
+    "id": "not_owner0",
+    "text": "I only do that for my friend. But I'll play a game with you!",
     "when": []
    }
   ]

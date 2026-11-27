@@ -246,3 +246,13 @@ for _k in ("jj", "mikey"):
     for _cat, _t in _V17[_k].items():
         LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
 CATS += list(_V17["jj"].keys())
+
+# ---------- v1.9: other players ----------
+_V19 = {
+ "jj": {"not_owner": ["Sorry, I'm somebody else's buddy! But I'll play a game with you!"]},
+ "mikey": {"not_owner": ["I only do that for my friend. But I'll play a game with you!"]},
+}
+for _k in ("jj", "mikey"):
+    for _cat, _t in _V19[_k].items():
+        LINES[_k][_cat] = [(f"{_cat}{n}", x, []) for n, x in enumerate(_t)]
+CATS += list(_V19["jj"].keys())

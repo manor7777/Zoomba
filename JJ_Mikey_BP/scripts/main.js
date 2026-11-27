@@ -131,34 +131,65 @@ system.runInterval(() => {
 }, 100);
 
 // ---------- menu ----------
+// ---------- who owns a tamed buddy (others can still play games with them) ----------
+function ownerId(buddy) {
+  try { const t = buddy.getComponent("minecraft:tameable"); if (t && t.tamedToPlayerId) return t.tamedToPlayerId; } catch { }
+  try { const v = buddy.getDynamicProperty("jjmikey:owner"); if (v) return String(v); } catch { }
+  return null;
+}
+function isOwner(buddy, player) {
+  if (!buddy.hasTag("jjmikey_tamed")) return true; // wild: anyone can talk to them and make friends
+  const oid = ownerId(buddy);
+  try {
+    if (!oid || oid === player.id) { buddy.setDynamicProperty("jjmikey:owner", player.id); buddy.setDynamicProperty("jjmikey:ownername", player.name); }
+  } catch { }
+  return !oid || oid === player.id;
+}
+function ownerName(buddy) {
+  try { const n = buddy.getDynamicProperty("jjmikey:ownername"); if (n) return String(n); } catch { }
+  return "their friend";
+}
+function denyOwner(buddy, player) {
+  speak(buddy, "not_owner", player);
+  try { player.sendMessage(`§7${LINES[TYPES[buddy.typeId]].name} is ${ownerName(buddy)}'s buddy, so only they can do that. You can still chat and play games together!`); } catch { }
+}
+
+// ---------- menu ----------
 async function showMenu(player, buddy, tries = 0) {
   if (!alive(buddy)) return;
   const c = LINES[TYPES[buddy.typeId]];
   const tamed = buddy.hasTag("jjmikey_tamed");
+  const own = isOwner(buddy, player);
+  const g = games.get(buddy.id);
   const mode = buddy.hasTag("jjmikey_sit") ? "sit" : buddy.hasTag("jjmikey_stay") ? "stay" : "follow";
   const muted = player.hasTag("jjmikey_mute");
   const buttons = [];
   const form = new ActionFormData().title(`${c.color}${c.name}`);
-  form.body(tamed ? `${c.name} is your buddy!` : `Feed ${c.name} a cookie or a golden apple to make friends.`);
+  form.body(!tamed ? `Feed ${c.name} a cookie or a golden apple to make friends.`
+    : own ? `${c.name} is your buddy!${g ? "\nA game is running." : ""}`
+    : `${c.name} is ${ownerName(buddy)}'s buddy. You can chat and play games with them!${g ? "\nA game is running." : ""}`);
   const add = (label, fn) => { form.button(label); buttons.push(fn); };
   add("Chat", () => speak(buddy, "talk", player));
   add(`Talk to ${c.name} (type)`, () => talkForm(player, buddy));
-  add("Find something...", () => findMenu(player, buddy));
-  add(buddy.hasTag("jjmikey_explore") ? "Stop exploring (come back)" : "Go exploring", () => {
-    if (buddy.hasTag("jjmikey_explore")) { stopExplore(buddy, player); setMode(buddy, player, "follow"); }
-    else if (!startExplore(buddy, player)) player.sendMessage("§7Not right now.");
-  });
-  add("Ask for a gift", () => gift(buddy, player));
-  if (mode === "follow") {
-    add("Stay here (standing)", () => setMode(buddy, player, "stay"));
-    add("Sit down", () => setMode(buddy, player, "sit"));
-  } else {
-    add(tamed ? "Follow me" : "Wander again", () => setMode(buddy, player, "follow"));
-    if (mode === "stay") add("Sit down", () => setMode(buddy, player, "sit"));
-    else add("Stand up (stay here)", () => setMode(buddy, player, "stay"));
+  if (own) {
+    add("Find something...", () => findMenu(player, buddy));
+    add(buddy.hasTag("jjmikey_explore") ? "Stop exploring (come back)" : "Go exploring", () => {
+      if (buddy.hasTag("jjmikey_explore")) { stopExplore(buddy, player); setMode(buddy, player, "follow"); }
+      else if (!startExplore(buddy, player)) player.sendMessage("§7Not right now.");
+    });
+    add("Ask for a gift", () => gift(buddy, player));
+    if (mode === "follow") {
+      add("Stay here (standing)", () => setMode(buddy, player, "stay"));
+      add("Sit down", () => setMode(buddy, player, "sit"));
+    } else {
+      add(tamed ? "Follow me" : "Wander again", () => setMode(buddy, player, "follow"));
+      if (mode === "stay") add("Sit down", () => setMode(buddy, player, "sit"));
+      else add("Stand up (stay here)", () => setMode(buddy, player, "stay"));
+    }
+    if (tamed) add("Punch what I'm looking at", () => punch(buddy, player));
   }
-  if (tamed) add("Punch what I'm looking at", () => punch(buddy, player));
-  add(games.has(buddy.id) ? "Stop the game" : "Play a game", () => (games.has(buddy.id) ? endGame(buddy, player, true) : gameMenu(player, buddy)));
+  if (g) { if (own || g.starter === player) add("Stop the game", () => endGame(buddy, player, true)); }
+  else add("Play a game", () => gameMenu(player, buddy));
   add(muted ? "Voices: OFF (tap to turn on)" : "Voices: ON (tap to turn off)", () => {
     if (muted) player.removeTag("jjmikey_mute"); else player.addTag("jjmikey_mute");
     player.sendMessage(muted ? "§7Buddy voices on." : "§7Buddy voices off.");
@@ -252,6 +283,7 @@ world.afterEvents.entityDie.subscribe((ev) => {
     if (!e || !(e.typeId in TYPES)) return;
     const k = world.getDynamicProperty(`jjmikey:rk:${e.id}`);
     if (k && world.getDynamicProperty(k) === e.id) world.setDynamicProperty(k, undefined);
+    taDrop(e);
   } catch { }
 });
 function resetRecords(player) {
@@ -260,6 +292,8 @@ function resetRecords(player) {
       world.setDynamicProperty(`jjmikey:active:${player.dimension.id}:${type}`, undefined);
       for (const b of player.dimension.getEntities({ type })) claimIfEmpty(b);
     }
+    for (const key of Object.values(TYPES)) { try { player.dimension.runCommand(`tickingarea remove jjm_${key}_${player.dimension.id.replace("minecraft:", "")}`); } catch { } }
+    TA.clear();
     player.sendMessage("§7Buddy records reset for this dimension.");
   } catch { }
 }
@@ -394,7 +428,7 @@ system.afterEvents.scriptEventReceive.subscribe((ev) => {
   let n = 0;
   for (const type of Object.keys(TYPES)) {
     try {
-      for (const b of player.dimension.getEntities({ type, location: player.location, maxDistance: 48 })) { setMode(b, player, mode); n++; }
+      for (const b of player.dimension.getEntities({ type, location: player.location, maxDistance: 48 })) { if (!isOwner(b, player)) continue; setMode(b, player, mode); n++; }
     } catch { }
   }
   if (n === 0) try { player.sendMessage("§7No JJ or Mikey within 48 blocks."); } catch { }
@@ -415,7 +449,7 @@ function handleTap(player, buddy, itemStack) {
   if (!buddy.hasTag("jjmikey_tamed") && (held === "minecraft:cookie" || held === "minecraft:golden_apple")) return; // let taming happen
   lastOpen.set(player.id, now);
   system.run(() => {
-    if (player.isSneaking) quickToggle(buddy, player); else showMenu(player, buddy);
+    if (player.isSneaking && isOwner(buddy, player)) quickToggle(buddy, player); else showMenu(player, buddy);
   });
 }
 world.beforeEvents.playerInteractWithEntity.subscribe((ev) => handleTap(ev.player, ev.target, ev.itemStack));
@@ -458,6 +492,17 @@ async function gameMenu(player, buddy) {
   try { opts[res.selection](); } catch { }
 }
 
+// ---------- who's playing: everyone within 50 blocks of the buddy ----------
+const GAME_RANGE = 50;
+function participants(buddy, r = GAME_RANGE) {
+  try {
+    return world.getPlayers().filter((p) => p.dimension.id === buddy.dimension.id && dist(p.location, buddy.location) <= r)
+      .sort((a, b) => dist(a.location, buddy.location) - dist(b.location, buddy.location));
+  } catch { return []; }
+}
+const tell = (players, text) => { for (const p of players) { try { p.sendMessage(text); } catch { } } };
+const bar = (players, text) => { for (const p of players) actionBar(p, text); };
+
 // ---------- hide and seek ----------
 function findHideSpot(player) {
   const dim = player.dimension, { x, y, z } = player.location;
@@ -486,51 +531,65 @@ function findHideSpot(player) {
   return best ? best.spot : null;
 }
 
+function seekersOf(g, buddy) {
+  try { return world.getPlayers().filter((p) => g.seekers.has(p.id) && p.dimension.id === buddy.dimension.id); } catch { return []; }
+}
+
 function startHide(buddy, player) {
   const c = LINES[TYPES[buddy.typeId]];
-  const g = { type: "hide", buddy, player, hidden: false, start: 0, lastGiggle: 0, lastPsst: 0 };
+  const crowd = participants(buddy);
+  const g = { type: "hide", buddy, starter: player, seekers: new Set([player.id, ...crowd.map((p) => p.id)]), hidden: false, start: 0, lastGiggle: 0, lastPsst: 0 };
   games.set(buddy.id, g);
   applyMode(buddy, "stay");
   speak(buddy, "hs_start", player);
-  actionBar(player, "Count to 20... no peeking!");
+  bar(crowd, "Count to 20... no peeking!");
+  if (crowd.length > 1) tell(crowd, `§e${c.name} is playing hide and seek with everyone within ${GAME_RANGE} blocks! Count to 20, then go find them.`);
   later(buddy, g, 20 * 20, () => {
-    const spot = findHideSpot(player);
-    if (!spot) { player.sendMessage("§7Couldn't find a hiding spot here. Try somewhere more open."); endGame(buddy, player); return; }
+    const base = alive(player) ? player : participants(buddy)[0];
+    const spot = base ? findHideSpot(base) : null;
+    if (!spot) { tell(seekersOf(g, buddy), "§7Couldn't find a hiding spot here. Try somewhere more open."); endGame(buddy, player); return; }
     try { buddy.teleport(spot); } catch { }
     g.hidden = true; g.start = system.currentTick;
-    player.sendMessage(`${c.color}${c.name}§r is hiding! Tap them or get close to find them. Stuck? Type §e/scriptevent buddy:hint`);
+    tell(seekersOf(g, buddy), `${c.color}${c.name}§r is hiding! Tap them or get close to find them. Stuck? Type §e/scriptevent buddy:hint`);
   });
-  g.interval = system.runInterval(() => hideTick(buddy, player, g), 20);
+  g.interval = system.runInterval(() => hideTick(buddy, g), 20);
 }
 
-function hideTick(buddy, player, g) {
-  if (!alive(buddy) || !alive(player)) { games.delete(buddy.id); try { system.clearRun(g.interval); } catch { } return; }
+function hideTick(buddy, g) {
+  if (!alive(buddy)) { games.delete(buddy.id); try { system.clearRun(g.interval); } catch { } return; }
   if (!g.hidden) return;
-  const now = system.currentTick, d = dist(buddy.location, player.location);
-  if (d <= 2.5) { hideFound(buddy, player); return; }
+  for (const p of participants(buddy)) g.seekers.add(p.id); // anyone who wanders within 50 blocks joins in
+  const seekers = seekersOf(g, buddy).sort((a, b) => dist(a.location, buddy.location) - dist(b.location, buddy.location));
+  const now = system.currentTick, nearest = seekers[0];
+  const d = nearest ? dist(buddy.location, nearest.location) : Infinity;
+  if (nearest && d <= 2.5) { hideFound(buddy, nearest); return; }
   if (now - g.start > 20 * 240) {
-    speak(buddy, "hs_timeout", player);
+    speak(buddy, "hs_timeout", nearest || null);
     const l = buddy.location;
-    player.sendMessage(`§7They were hiding at ${Math.floor(l.x)}, ${Math.floor(l.y)}, ${Math.floor(l.z)}.`);
-    endGame(buddy, player);
+    tell(seekers, `§7They were hiding at ${Math.floor(l.x)}, ${Math.floor(l.y)}, ${Math.floor(l.z)}.`);
+    endGame(buddy, g.starter);
     return;
   }
-  if (d <= 9 && now - g.lastPsst > 20 * 14) { g.lastPsst = now; speak(buddy, "hs_psst", player); }
-  else if (d <= 16 && now - g.lastGiggle > 20 * 35) { g.lastGiggle = now; speak(buddy, "hs_giggle", player); }
+  if (d <= 9 && now - g.lastPsst > 20 * 14) { g.lastPsst = now; speak(buddy, "hs_psst", nearest); }
+  else if (d <= 16 && now - g.lastGiggle > 20 * 35) { g.lastGiggle = now; speak(buddy, "hs_giggle", nearest); }
 }
 
-function hideFound(buddy, player) {
-  if (!games.has(buddy.id)) return;
+function hideFound(buddy, finder) {
+  const g = games.get(buddy.id);
+  if (!g) return;
+  const c = LINES[TYPES[buddy.typeId]];
   heart(buddy);
-  speak(buddy, "hs_found", player);
-  gift(buddy, player, true);
-  endGame(buddy, player);
+  speak(buddy, "hs_found", finder);
+  gift(buddy, finder, true);
+  tell(seekersOf(g, buddy).filter((p) => p.id !== finder.id), `§e${finder.name} found ${c.name}!`);
+  endGame(buddy, finder);
 }
 
 function giveHint(player) {
   if (!player) return;
   for (const g of games.values()) {
-    if (g.type !== "hide" || !g.hidden || g.player !== player) continue;
+    if (g.type !== "hide" || !g.hidden) continue;
+    if (!g.seekers.has(player.id) && dist(player.location, g.buddy.location) > GAME_RANGE) continue;
     const a = player.location, b = g.buddy.location, d = dist(a, b);
     const dir = Math.abs(b.x - a.x) > Math.abs(b.z - a.z) ? (b.x > a.x ? "east" : "west") : (b.z > a.z ? "south" : "north");
     const temp = d > 40 ? "Freezing cold" : d > 25 ? "Cold" : d > 15 ? "Warm" : d > 8 ? "Hot" : "Burning hot";
@@ -540,66 +599,91 @@ function giveHint(player) {
   try { player.sendMessage("§7No hide and seek game is running."); } catch { }
 }
 
-// ---------- tag: catch them 3 times ----------
+// ---------- tag: everyone nearby catches them 3 times together ----------
 function startTag(buddy, player) {
-  const g = { type: "tag", count: 0, cool: 0, start: system.currentTick };
+  const c = LINES[TYPES[buddy.typeId]];
+  const g = { type: "tag", starter: player, tally: new Map(), total: 0, cool: 0, start: system.currentTick };
   games.set(buddy.id, g);
   applyMode(buddy, "follow");
   try { buddy.triggerEvent("jjmikey:flee_on"); } catch { }
   speak(buddy, "tag_start", player);
+  const crowd = participants(buddy);
+  if (crowd.length > 1) tell(crowd, `§e${c.name} is playing tag with everyone within ${GAME_RANGE} blocks! Catch them 3 times between you.`);
   g.interval = system.runInterval(() => {
-    if (!alive(buddy) || !alive(player)) { games.delete(buddy.id); try { system.clearRun(g.interval); } catch { } return; }
-    const now = system.currentTick;
-    if (now - g.cool > 40 && dist(buddy.location, player.location) <= 1.9) {
-      g.cool = now; g.count++;
+    if (!alive(buddy)) { games.delete(buddy.id); try { system.clearRun(g.interval); } catch { } return; }
+    const now = system.currentTick, ps = participants(buddy);
+    const catcher = ps.find((p) => dist(buddy.location, p.location) <= 1.9);
+    if (catcher && now - g.cool > 40) {
+      g.cool = now; g.total++;
+      g.tally.set(catcher.id, (g.tally.get(catcher.id) || 0) + 1);
       heart(buddy);
-      actionBar(player, `Tagged! ${g.count}/3`);
-      if (g.count >= 3) { speak(buddy, "tag_end", player); gift(buddy, player, true); endGame(buddy, player); return; }
-      speak(buddy, "tag_tagged", player);
+      bar(ps, `${catcher.name} tagged ${c.name}! ${g.total}/3`);
+      if (g.total >= 3) {
+        speak(buddy, "tag_end", catcher);
+        for (const p of ps) if (g.tally.get(p.id)) gift(buddy, p, true);
+        if (ps.length > 1) tell(ps, "§eTag results: " + ps.filter((p) => g.tally.get(p.id)).map((p) => `${p.name} ${g.tally.get(p.id)}`).join(", "));
+        endGame(buddy, g.starter);
+        return;
+      }
+      speak(buddy, "tag_tagged", catcher);
     }
-    if (now - g.start > 20 * 180) { speak(buddy, "tag_end", player); endGame(buddy, player); }
+    if (now - g.start > 20 * 180) { speak(buddy, "tag_end", ps[0] || null); endGame(buddy, g.starter); }
   }, 4);
 }
 
-// ---------- Simon Says ----------
+// ---------- Simon Says: everyone within 50 blocks plays, each with their own score ----------
 const SIMON = { jump: "JUMP", crouch: "CROUCH (sneak)", sprint: "SPRINT", look: "LOOK UP" };
 function startSimon(buddy, player) {
-  const g = { type: "simon", round: 0, score: 0, rounds: 6 };
+  const c = LINES[TYPES[buddy.typeId]];
+  const g = { type: "simon", starter: player, round: 0, rounds: 6, scores: new Map() };
   games.set(buddy.id, g);
   applyMode(buddy, "stay");
   speak(buddy, "simon_start", player);
-  later(buddy, g, 20 * 4, () => simonRound(buddy, player, g));
+  const crowd = participants(buddy);
+  if (crowd.length > 1) tell(crowd, `§e${c.name} is playing Simon Says with everyone within ${GAME_RANGE} blocks!`);
+  later(buddy, g, 20 * 4, () => simonRound(buddy, g));
 }
-function simonRound(buddy, player, g) {
-  if (!alive(player) || !alive(buddy)) { games.delete(buddy.id); return; }
+function simonRound(buddy, g) {
+  if (!alive(buddy)) { games.delete(buddy.id); return; }
+  const ps = participants(buddy);
+  if (ps.length === 0) { endGame(buddy, g.starter); return; }
   if (g.round >= g.rounds) {
-    const win = g.score >= 4;
-    speak(buddy, win ? "sim_win" : "sim_lose", player);
-    if (win) gift(buddy, player, true);
-    player.sendMessage(`§eSimon Says score: ${g.score}/${g.rounds}`);
-    endGame(buddy, player);
+    const results = ps.map((p) => ({ p, s: g.scores.get(p.id) || 0 })).sort((a, b) => b.s - a.s);
+    const winners = results.filter((r) => r.s >= 4);
+    speak(buddy, winners.length > 0 ? "sim_win" : "sim_lose", ps[0]);
+    for (const r of winners) gift(buddy, r.p, true);
+    tell(ps, "§eSimon Says score: " + results.map((r) => `${r.p.name} ${r.s}/${g.rounds}`).join(", "));
+    endGame(buddy, g.starter);
     return;
   }
   g.round++;
   const simon = Math.random() < 0.65, act = pick(Object.keys(SIMON));
-  speak(buddy, (simon ? "sim_" : "trap_") + act, player);
-  if (simon) buddyDo(buddy, player, act);
-  actionBar(player, (simon ? "Simon says: " : "") + SIMON[act]);
-  let acted = false, ticks = 0;
+  speak(buddy, (simon ? "sim_" : "trap_") + act, ps[0]);
+  if (simon) buddyDo(buddy, ps[0], act);
+  bar(ps, (simon ? "Simon says: " : "") + SIMON[act]);
+  const acted = new Set();
+  let ticks = 0;
   const iv = system.runInterval(() => {
-    if (games.get(buddy.id) !== g || !alive(player)) { system.clearRun(iv); return; }
+    if (games.get(buddy.id) !== g) { system.clearRun(iv); return; }
     ticks += 2;
-    try {
-      if (act === "jump" && player.isJumping) acted = true;
-      if (act === "crouch" && player.isSneaking) acted = true;
-      if (act === "sprint" && player.isSprinting) acted = true;
-      if (act === "look" && player.getRotation().x < -45) acted = true;
-    } catch { }
+    for (const p of ps) {
+      try {
+        if (act === "jump" && p.isJumping) acted.add(p.id);
+        if (act === "crouch" && p.isSneaking) acted.add(p.id);
+        if (act === "sprint" && p.isSprinting) acted.add(p.id);
+        if (act === "look" && p.getRotation().x < -45) acted.add(p.id);
+      } catch { }
+    }
     if (ticks < 100) return;
     system.clearRun(iv);
-    if (simon) { if (acted) { g.score++; speak(buddy, "sim_good", player); } else speak(buddy, "sim_miss", player); }
-    else { if (acted) speak(buddy, "sim_bad", player); else { g.score++; speak(buddy, "sim_good", player); } }
-    later(buddy, g, 50, () => simonRound(buddy, player, g));
+    let good = 0;
+    for (const p of ps) {
+      const did = acted.has(p.id), ok = simon ? did : !did;
+      if (ok) { good++; g.scores.set(p.id, (g.scores.get(p.id) || 0) + 1); }
+      try { p.sendMessage(ok ? "§a+1" : simon ? "§cToo slow!" : "§cSimon didn't say that!"); } catch { }
+    }
+    speak(buddy, good > 0 ? "sim_good" : simon ? "sim_miss" : "sim_bad", ps[0]);
+    later(buddy, g, 50, () => simonRound(buddy, g));
   }, 2);
 }
 
@@ -863,8 +947,11 @@ function reply(buddy, player, t) {
   const tamed = buddy.hasTag("jjmikey_tamed");
   const g = games.get(buddy.id);
   const key = findKey(t);
-  if (has(/\b(stop|cancel|never ?mind|quit)\b/)) { if (g) { speak(buddy, "find_cancel", player); endGame(buddy, player); } else speak(buddy, "chat_unknown", player); return; }
+  const own = isOwner(buddy, player);
+  if (has(/\b(stop|cancel|never ?mind|quit)\b/)) { if (g && !own && g.starter !== player) return denyOwner(buddy, player); if (g) { speak(buddy, "find_cancel", player); endGame(buddy, player); } else speak(buddy, "chat_unknown", player); return; }
   if (has(/where( are| r)? (you|u)\b|^where( is|'s)?$|where did you go/)) return speak(buddy, "chat_where", player);
+  if (!own && ((key && has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/)) ||
+      has(/\b(find|show me|lead me|take me|locate|search|look for)\b|come back|explor|adventure|for a walk|wander off|\bsit\b|\b(stay|wait|stand|freeze)\b|\b(follow|come|with me|let'?s go|walk with)\b|\b(punch|attack|hit|smash|fight)\b|\b(gift|give me|present|reward)\b/))) return denyOwner(buddy, player);
   if (has(/\b(find|show me|lead|take me|where|locate|search|look for|get me|bring me|guide|any)\b/) && key) return startFind(buddy, player, key);
   if (has(/\b(find|show me|lead me|take me|locate|search|look for)\b/)) return speak(buddy, "find_what", player);
   if (st(buddy).trap && has(/where|help|directions|find you|how do i get|how to get|which way|find us/)) return trapReply(buddy, player);
@@ -1109,12 +1196,32 @@ function startExplore(buddy, player) {
   applyMode(buddy, "follow");
   buddy.addTag("jjmikey_explore");
   try { buddy.triggerEvent("jjmikey:explore_on"); } catch { }
-  s.exploreUntil = system.currentTick + 20 * 60 * rand(4, 8);
+  s.exploreUntil = system.currentTick + 20 * 60 * rand(6, 12);
+  taSync(buddy);
   speak(buddy, "explore_start", player);
   return true;
 }
+// A mob only moves while its chunks are loaded, so a small "ticking area" follows an exploring buddy around.
+const TA = new Map(); // buddy.id -> { x, z } where the area is centred
+const taName = (e) => `jjm_${TYPES[e.typeId]}_${e.dimension.id.replace("minecraft:", "")}`;
+function taSync(e) {
+  const l = e.location, cur = TA.get(e.id);
+  if (cur && Math.hypot(cur.x - l.x, cur.z - l.z) < 24) return;
+  const name = taName(e);
+  try { e.dimension.runCommand(`tickingarea remove ${name}`); } catch { }
+  try { e.dimension.runCommand(`tickingarea add circle ${Math.floor(l.x)} ${Math.floor(l.y)} ${Math.floor(l.z)} 2 ${name}`); TA.set(e.id, { x: l.x, z: l.z }); } catch { }
+}
+function taDrop(e) {
+  try { e.dimension.runCommand(`tickingarea remove ${taName(e)}`); } catch { }
+  TA.delete(e.id);
+}
+system.runInterval(() => {
+  for (const e of allBuddies()) if (e.hasTag("jjmikey_explore")) taSync(e);
+}, 100);
+
 function stopExplore(buddy, player) {
   try { buddy.removeTag("jjmikey_explore"); buddy.triggerEvent("jjmikey:explore_off"); } catch { }
+  taDrop(buddy);
   const s = st(buddy);
   s.exploreUntil = 0; s.exploreCool = system.currentTick + 20 * 60 * 10;
   if (player) speak(buddy, "explore_end", player);
