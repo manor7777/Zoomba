@@ -1,9 +1,9 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Zoomba Potions (Behavior)",
+    "name": "Tiny Tonics (Behavior)",
     "description": "Potion of Youth and Potion of Growth",
-    "uuid": "3a5507cd-096f-421a-85d2-64835a905bfc",
+    "uuid": "ac1b49e2-2f92-4e83-929c-9ac67de09ccd",
     "version": [
       1,
       0,
@@ -18,7 +18,7 @@
   "modules": [
     {
       "type": "data",
-      "uuid": "8a46b857-438b-4326-952b-4bfb2a48f0fa",
+      "uuid": "93d17584-90ae-4607-b135-a9134528b5d2",
       "version": [
         1,
         0,
@@ -28,7 +28,7 @@
     {
       "type": "script",
       "language": "javascript",
-      "uuid": "dc9e47af-4ecd-41aa-beda-c95ad13df7ce",
+      "uuid": "ec6828b9-c58b-4da0-bea6-e4e10a074e94",
       "version": [
         1,
         0,
@@ -39,7 +39,7 @@
   ],
   "dependencies": [
     {
-      "uuid": "c18dbe6b-7afe-4fee-a836-4c1b1efe7d17",
+      "uuid": "33317a7a-7fcf-47d6-b18c-2ae3cebc43e1",
       "version": [
         1,
         0,

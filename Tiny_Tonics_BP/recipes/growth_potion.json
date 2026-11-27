@@ -2,7 +2,7 @@
   "format_version": "1.20.10",
   "minecraft:recipe_shapeless": {
     "description": {
-      "identifier": "zoomba:baby_potion_recipe"
+      "identifier": "tonics:growth_potion_recipe"
     },
     "tags": [
       "crafting_table"
@@ -12,14 +12,14 @@
         "item": "minecraft:glass_bottle"
       },
       {
-        "item": "minecraft:sugar"
+        "item": "minecraft:bone_meal"
       },
       {
-        "item": "minecraft:golden_carrot"
+        "item": "minecraft:golden_apple"
       }
     ],
     "result": {
-      "item": "zoomba:baby_potion"
+      "item": "tonics:growth_potion"
     }
   }
 }

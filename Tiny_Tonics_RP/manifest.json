@@ -1,9 +1,9 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Zoomba Potions (Resources)",
-    "description": "Textures for the Zoomba potions",
-    "uuid": "c18dbe6b-7afe-4fee-a836-4c1b1efe7d17",
+    "name": "Tiny Tonics (Resources)",
+    "description": "Textures for the Tiny Tonics potions",
+    "uuid": "33317a7a-7fcf-47d6-b18c-2ae3cebc43e1",
     "version": [
       1,
       0,
@@ -18,7 +18,7 @@
   "modules": [
     {
       "type": "resources",
-      "uuid": "b8a4cbf0-9b49-494e-a47e-c014619308b7",
+      "uuid": "1c079b59-520f-401c-bd91-7f7d40a29850",
       "version": [
         1,
         0,

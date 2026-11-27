@@ -36,14 +36,49 @@ def bottle(liquid, liquid_hi, liquid_dk):
 PINK = ((255, 120, 190, 255), (255, 170, 215, 255), (214, 80, 150, 255))
 GREEN = ((110, 215, 70, 255), (165, 240, 120, 255), (70, 165, 45, 255))
 
-bottle(*PINK).save("Zoomba_RP/textures/items/baby_potion.png")
-bottle(*GREEN).save("Zoomba_RP/textures/items/growth_potion.png")
+bottle(*PINK).save("Tiny_Tonics_RP/textures/items/baby_potion.png")
+bottle(*GREEN).save("Tiny_Tonics_RP/textures/items/growth_potion.png")
 
-# Pack icon: both potions side by side on a dark tile.
-icon = Image.new("RGBA", (16, 16), (38, 34, 52, 255))
-for src, dx in (("baby_potion", -4), ("growth_potion", 4)):
-    p = Image.open(f"Zoomba_RP/textures/items/{src}.png")
-    tmp = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); tmp.paste(p, (dx // 2, 0), p)
-    icon.alpha_composite(tmp)
+# Pack icon: small Youth bottle beside a big Growth bottle, on a gradient with sparkles.
+W = 128
+icon = Image.new("RGBA", (W, W))
+ipx = icon.load()
+top, bot = (58, 34, 110), (24, 120, 140)
+for y in range(W):
+    t = y / (W - 1)
+    c = tuple(int(top[k] + (bot[k] - top[k]) * t) for k in range(3)) + (255,)
+    for x in range(W):
+        ipx[x, y] = c
+# soft vignette so the bottles pop
+for y in range(W):
+    for x in range(W):
+        d = ((x - 64) ** 2 + (y - 68) ** 2) ** 0.5 / 90
+        f = max(0.0, d - 0.55) * 0.9
+        r, g, b, a = ipx[x, y]
+        ipx[x, y] = (int(r * (1 - f)), int(g * (1 - f)), int(b * (1 - f)), 255)
+
+def paste_scaled(path, scale, x, y):
+    p = Image.open(path).resize((16 * scale, 16 * scale), Image.NEAREST)
+    shadow = Image.new("RGBA", p.size, (0, 0, 0, 0))
+    sp, pp = shadow.load(), p.load()
+    for yy in range(p.height):
+        for xx in range(p.width):
+            if pp[xx, yy][3]: sp[xx, yy] = (0, 0, 0, 90)
+    icon.alpha_composite(shadow, (x + scale, y + scale))
+    icon.alpha_composite(p, (x, y))
+
+paste_scaled("Tiny_Tonics_RP/textures/items/baby_potion.png", 3, 10, 66)    # small
+paste_scaled("Tiny_Tonics_RP/textures/items/growth_potion.png", 6, 26, 14)  # big
+
+def sparkle(cx, cy, r, color):
+    for d in range(-r, r + 1):
+        a = 255 if abs(d) < r else 160
+        for (x, y) in ((cx + d, cy), (cx, cy + d)):
+            if 0 <= x < W and 0 <= y < W: icon.putpixel((x, y), color[:3] + (a,))
+    icon.putpixel((cx, cy), (255, 255, 255, 255))
+sparkle(20, 24, 6, (255, 240, 170)); sparkle(112, 36, 4, (255, 255, 255))
+sparkle(108, 100, 7, (255, 240, 170)); sparkle(14, 104, 3, (255, 255, 255))
+sparkle(70, 8, 3, (255, 255, 255))
+
 icon = icon.resize((256, 256), Image.NEAREST)
-icon.save("Zoomba_RP/pack_icon.png"); icon.save("Zoomba_BP/pack_icon.png")
+icon.save("Tiny_Tonics_RP/pack_icon.png"); icon.save("Tiny_Tonics_BP/pack_icon.png")

@@ -1,11 +1,11 @@
-// Zoomba Potions: drink handling + persistence.
-// Size / max health / speed come from the "zoomba:baby" component group
-// that Zoomba_BP/entities/player.json adds to the player.
+// Tiny Tonics: drink handling + persistence.
+// Size / max health / speed come from the "tonics:baby" component group
+// that Tiny_Tonics_BP/entities/player.json adds to the player.
 import { world, system } from "@minecraft/server";
 
-const BABY_PROP = "zoomba:is_baby";
-const BABY_POTION = "zoomba:baby_potion";
-const GROWTH_POTION = "zoomba:growth_potion";
+const BABY_PROP = "tonics:is_baby";
+const BABY_POTION = "tonics:baby_potion";
+const GROWTH_POTION = "tonics:growth_potion";
 
 function clampHealth(player) {
   const health = player.getComponent("minecraft:health");
@@ -16,14 +16,14 @@ function clampHealth(player) {
 
 function makeBaby(player) {
   player.setDynamicProperty(BABY_PROP, true);
-  player.triggerEvent("zoomba:become_baby");
+  player.triggerEvent("tonics:become_baby");
   // Wait a couple of ticks so the new max health is in place before clamping.
   system.runTimeout(() => { try { clampHealth(player); } catch (_) {} }, 3);
 }
 
 function makeNormal(player) {
   player.setDynamicProperty(BABY_PROP, undefined);
-  player.triggerEvent("zoomba:become_normal");
+  player.triggerEvent("tonics:become_normal");
   // Wipe every status effect: speed, strength, slowness, etc.
   for (const effect of player.getEffects()) {
     player.removeEffect(effect.typeId);

@@ -2,7 +2,7 @@
   "format_version": "1.26.30",
   "minecraft:item": {
     "description": {
-      "identifier": "zoomba:growth_potion",
+      "identifier": "tonics:growth_potion",
       "menu_category": {
         "category": "items"
       }

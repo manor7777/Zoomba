@@ -367,7 +367,7 @@
           }
         }
       },
-      "zoomba:baby": {
+      "tonics:baby": {
         "minecraft:scale": {
           "value": 0.5
         },
@@ -418,17 +418,17 @@
           ]
         }
       },
-      "zoomba:become_baby": {
+      "tonics:become_baby": {
         "add": {
           "component_groups": [
-            "zoomba:baby"
+            "tonics:baby"
           ]
         }
       },
-      "zoomba:become_normal": {
+      "tonics:become_normal": {
         "remove": {
           "component_groups": [
-            "zoomba:baby"
+            "tonics:baby"
           ]
         }
       }

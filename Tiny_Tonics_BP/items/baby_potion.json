@@ -2,7 +2,7 @@
   "format_version": "1.26.30",
   "minecraft:item": {
     "description": {
-      "identifier": "zoomba:baby_potion",
+      "identifier": "tonics:baby_potion",
       "menu_category": {
         "category": "items"
       }
