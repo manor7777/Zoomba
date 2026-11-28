@@ -75,6 +75,27 @@ for (x, y) in ((1, 14), (2, 14), (1, 15), (2, 15), (0, 14), (0, 15), (1, 13), (2
 rect(r, 1, 14, 1, 15, (250, 215, 90, 255)); r[2, 14] = (250, 215, 90, 255)
 rt.save("Tiny_Tonics_RP/textures/items/rattle.png")
 
+# --- sour sweet: wrapped candy with a puckered face ---
+sw = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); q = sw.load()
+GRN = (150, 225, 70, 255); GRN_DK = (100, 170, 40, 255); YEL = (250, 230, 90, 255)
+rect(q, 4, 5, 11, 10, O); rect(q, 5, 6, 10, 9, GRN); rect(q, 5, 9, 10, 9, GRN_DK); rect(q, 5, 6, 10, 6, YEL)
+for (x0, x1, c) in ((1, 3, YEL), (12, 14, YEL)):            # twisted wrapper ends
+    rect(q, x0, 4, x1, 11, O); rect(q, x0 + (0 if x0 < 5 else 1), 5, x1 - (1 if x0 < 5 else 0), 10, c)
+q[1, 4] = (0, 0, 0, 0); q[1, 11] = (0, 0, 0, 0); q[14, 4] = (0, 0, 0, 0); q[14, 11] = (0, 0, 0, 0)
+q[6, 7] = O; q[9, 7] = O; rect(q, 7, 8, 8, 8, O)            # scrunched face
+sw.save("Tiny_Tonics_RP/textures/items/sour_sweet.png")
+
+# --- pacifier ---
+pc = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); c_ = pc.load()
+PINKB = (255, 150, 200, 255); PINKD = (225, 105, 160, 255)
+rect(c_, 6, 1, 9, 5, O); rect(c_, 7, 1, 8, 5, TEAT); c_[8, 2] = TEAT_DK; c_[8, 3] = TEAT_DK  # teat
+rect(c_, 2, 6, 13, 10, O); rect(c_, 3, 7, 12, 9, BLUE); rect(c_, 3, 9, 12, 9, BLUE_DK)       # shield
+rect(c_, 7, 6, 8, 6, TEAT)
+rect(c_, 6, 11, 9, 14, O); rect(c_, 7, 11, 8, 13, PINKB); rect(c_, 7, 13, 8, 13, PINKD)       # button
+rect(c_, 6, 14, 9, 14, O)
+c_[4, 7] = GLASS_HI; c_[5, 7] = GLASS_HI
+pc.save("Tiny_Tonics_RP/textures/items/pacifier.png")
+
 # --- nappy texture for the 9x5x5 box (box-UV layout in a 32x16 sheet) ---
 W_ = (244, 244, 250, 255); W_SH = (214, 216, 232, 255); TAPE = (250, 215, 90, 255); BAND = (140, 195, 245, 255)
 nd = Image.new("RGBA", (32, 16), (0, 0, 0, 0)); n = nd.load()

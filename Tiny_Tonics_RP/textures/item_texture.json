@@ -13,6 +13,12 @@
     },
     "rattle": {
       "textures": "textures/items/rattle"
+    },
+    "sour_sweet": {
+      "textures": "textures/items/sour_sweet"
+    },
+    "pacifier": {
+      "textures": "textures/items/pacifier"
     }
   }
 }

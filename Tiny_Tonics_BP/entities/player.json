@@ -383,11 +383,27 @@
           "height": 0.9
         },
         "minecraft:health": {
-          "value": 10,
-          "max": 10
+          "value": 40,
+          "max": 40
         },
         "minecraft:movement": {
           "value": 0.08
+        }
+      },
+      "tonics:normal": {
+        "minecraft:scale": {
+          "value": 1.0
+        },
+        "minecraft:collision_box": {
+          "width": 0.6,
+          "height": 1.8
+        },
+        "minecraft:health": {
+          "value": 20,
+          "max": 20
+        },
+        "minecraft:movement": {
+          "value": 0.1
         }
       }
     },
@@ -426,6 +442,11 @@
         }
       },
       "tonics:become_baby": {
+        "remove": {
+          "component_groups": [
+            "tonics:normal"
+          ]
+        },
         "add": {
           "component_groups": [
             "tonics:baby"
@@ -439,6 +460,11 @@
         "remove": {
           "component_groups": [
             "tonics:baby"
+          ]
+        },
+        "add": {
+          "component_groups": [
+            "tonics:normal"
           ]
         },
         "set_property": {

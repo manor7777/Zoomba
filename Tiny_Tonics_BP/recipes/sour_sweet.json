@@ -1,0 +1,22 @@
+{
+  "format_version": "1.20.10",
+  "minecraft:recipe_shapeless": {
+    "description": {
+      "identifier": "tonics:sour_sweet_recipe"
+    },
+    "tags": [
+      "crafting_table"
+    ],
+    "ingredients": [
+      {
+        "item": "minecraft:sugar"
+      },
+      {
+        "item": "minecraft:sweet_berries"
+      }
+    ],
+    "result": {
+      "item": "tonics:sour_sweet"
+    }
+  }
+}
