@@ -5,7 +5,14 @@
       "identifier": "minecraft:player",
       "is_summonable": false,
       "is_spawnable": false,
-      "spawn_category": "creature"
+      "spawn_category": "creature",
+      "properties": {
+        "tonics:baby": {
+          "type": "bool",
+          "default": false,
+          "client_sync": true
+        }
+      }
     },
     "components": {
       "minecraft:attack": {
@@ -423,6 +430,9 @@
           "component_groups": [
             "tonics:baby"
           ]
+        },
+        "set_property": {
+          "tonics:baby": true
         }
       },
       "tonics:become_normal": {
@@ -430,6 +440,9 @@
           "component_groups": [
             "tonics:baby"
           ]
+        },
+        "set_property": {
+          "tonics:baby": false
         }
       }
     }

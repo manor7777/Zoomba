@@ -7,6 +7,12 @@
     },
     "growth_potion": {
       "textures": "textures/items/growth_potion"
+    },
+    "baby_bottle": {
+      "textures": "textures/items/baby_bottle"
+    },
+    "rattle": {
+      "textures": "textures/items/rattle"
     }
   }
 }

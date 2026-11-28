@@ -39,6 +39,54 @@ GREEN = ((110, 215, 70, 255), (165, 240, 120, 255), (70, 165, 45, 255))
 bottle(*PINK).save("Tiny_Tonics_RP/textures/items/baby_potion.png")
 bottle(*GREEN).save("Tiny_Tonics_RP/textures/items/growth_potion.png")
 
+# --- baby bottle ---
+def rect(px, x0, y0, x1, y1, c):
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            px[x, y] = c
+
+O = (52, 46, 66, 255); MILK = (250, 248, 240, 255); MILK_DK = (222, 216, 205, 255)
+BLUE = (110, 170, 235, 255); BLUE_DK = (70, 120, 200, 255); TEAT = (236, 190, 120, 255); TEAT_DK = (200, 150, 85, 255)
+bt = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); b = bt.load()
+rect(b, 7, 0, 8, 0, O); rect(b, 6, 1, 9, 3, O)            # teat outline
+rect(b, 7, 1, 8, 3, TEAT); b[8, 2] = TEAT_DK; b[8, 3] = TEAT_DK
+rect(b, 4, 4, 11, 5, O); rect(b, 5, 4, 10, 4, BLUE); rect(b, 5, 5, 10, 5, BLUE_DK)   # collar
+rect(b, 4, 6, 11, 15, O); rect(b, 5, 6, 10, 14, GLASS)    # bottle body
+rect(b, 5, 8, 10, 14, MILK); rect(b, 5, 13, 10, 14, MILK_DK)
+for yy in (9, 11): rect(b, 5, yy, 6, yy, BLUE)             # measuring marks
+rect(b, 5, 15, 10, 15, O); b[9, 7] = GLASS_HI; b[9, 6] = GLASS_HI
+bt.save("Tiny_Tonics_RP/textures/items/baby_bottle.png")
+
+# --- rattle ---
+rt = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); r = rt.load()
+cx, cy = 10.5, 5.5
+for y in range(16):
+    for x in range(16):
+        d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+        if d <= 4.6: r[x, y] = O
+        if d <= 3.6: r[x, y] = (255, 130, 190, 255)
+        if d <= 3.6 and (x + y) % 5 == 0: r[x, y] = (255, 235, 120, 255)
+        if d <= 3.6 and x < cx and y < cy and d > 1.8: r[x, y] = (255, 175, 215, 255)
+for i in range(6):                                          # handle
+    x, y = 8 - i, 8 + i
+    r[x, y] = O; r[x + 1, y] = (250, 215, 90, 255); r[x + 2, y] = O
+for (x, y) in ((1, 14), (2, 14), (1, 15), (2, 15), (0, 14), (0, 15), (1, 13), (2, 13)):  # end ring
+    if 0 <= x < 16: r[x, y] = O
+rect(r, 1, 14, 1, 15, (250, 215, 90, 255)); r[2, 14] = (250, 215, 90, 255)
+rt.save("Tiny_Tonics_RP/textures/items/rattle.png")
+
+# --- nappy texture for the 9x5x5 box (box-UV layout in a 32x16 sheet) ---
+W_ = (244, 244, 250, 255); W_SH = (214, 216, 232, 255); TAPE = (250, 215, 90, 255); BAND = (140, 195, 245, 255)
+nd = Image.new("RGBA", (32, 16), (0, 0, 0, 0)); n = nd.load()
+rect(n, 5, 0, 22, 4, W_SH)       # top (5..13) + bottom (14..22)
+rect(n, 0, 5, 27, 9, W_)         # sides: left, front, right, back
+rect(n, 0, 5, 27, 6, BAND)       # waistband all the way round
+rect(n, 0, 9, 27, 9, W_SH)       # shaded lower edge
+rect(n, 8, 7, 10, 8, TAPE)       # yellow duck/dot on the front
+n[10, 7] = (255, 150, 60, 255)   # beak
+rect(n, 19, 7, 20, 8, TAPE); rect(n, 26, 7, 27, 8, TAPE)   # tape tabs on the back
+nd.save("Tiny_Tonics_RP/textures/entity/tonics_diaper.png")
+
 # Pack icon: small Youth bottle beside a big Growth bottle, on a gradient with sparkles.
 W = 128
 icon = Image.new("RGBA", (W, W))
