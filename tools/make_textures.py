@@ -96,6 +96,13 @@ rect(c_, 6, 14, 9, 14, O)
 c_[4, 7] = GLASS_HI; c_[5, 7] = GLASS_HI
 pc.save("Tiny_Tonics_RP/textures/items/pacifier.png")
 
+# --- pacifier attachable texture (16x16; shield uv(0,0) 12x3, teat uv(0,4) 4x2, ring uv(0,8) 6x3) ---
+pt = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); t_ = pt.load()
+rect(t_, 0, 0, 11, 2, BLUE); rect(t_, 0, 2, 11, 2, BLUE_DK)
+rect(t_, 0, 4, 3, 5, TEAT); rect(t_, 0, 5, 3, 5, TEAT_DK)
+rect(t_, 0, 8, 5, 10, PINKB); rect(t_, 0, 10, 5, 10, PINKD)
+pt.save("Tiny_Tonics_RP/textures/attachable/tonics_pacifier.png")
+
 # --- nappy texture for the 9x5x5 box (box-UV layout in a 32x16 sheet) ---
 W_ = (244, 244, 250, 255); W_SH = (214, 216, 232, 255); TAPE = (250, 215, 90, 255); BAND = (140, 195, 245, 255)
 nd = Image.new("RGBA", (32, 16), (0, 0, 0, 0)); n = nd.load()
